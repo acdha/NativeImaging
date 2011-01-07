@@ -4,7 +4,6 @@ An Image-compatible backend using GraphicsMagick via ctypes
 """
 
 import ctypes
-import sys
 
 from NativeImaging.api import Image
 
@@ -34,6 +33,9 @@ class GraphicsMagickImage(Image):
             wand.MagickReadImageFile(i._wand, c_file)
         else:
             wand.MagickReadImage(i._wand, fp)
+
+        i.size = (wand.MagickGetImageWidth(i._wand),
+                    wand.MagickGetImageHeight(i._wand))
 
         return i
 
