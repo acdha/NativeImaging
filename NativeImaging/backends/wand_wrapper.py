@@ -129,6 +129,11 @@ MagickWriteImage.restype = MagickBooleanType
 MagickWriteImage.argtypes = [WAND_P, ctypes.c_char_p]
 MagickWriteImage.errcheck = _wand_errcheck
 
+MagickWriteImageBlob = _wandlib.MagickWriteImageBlob
+MagickWriteImageBlob.restype = ctypes.POINTER(ctypes.c_char)
+MagickWriteImageBlob.argtypes = [WAND_P, ctypes.POINTER(ctypes.c_size_t)]
+MagickWriteImageBlob.errcheck = _wand_errcheck
+
 MagickWriteImageFile = _wandlib.MagickWriteImageFile
 MagickWriteImageFile.restype = MagickBooleanType
 MagickWriteImageFile.argtypes = [WAND_P, FILE_P]
