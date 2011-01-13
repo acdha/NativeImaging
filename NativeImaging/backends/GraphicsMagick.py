@@ -55,6 +55,13 @@ class GraphicsMagickImage(Image):
         wand.MagickResizeImage(self._wand, size[0], size[1], resample, 1)
         return self  # TODO: return copy
 
+    def crop(self, box):
+        x0, y0, x1, y1 = box
+        width = x1 - x0;
+        height = y1 - y1;
+        wand.MagickCropImage(self._wand, x0, y0, width, height)
+        return self  # TODO: return copy?
+
     def save(self,  fp, format="JPEG", **kwargs):
         wand.MagickSetImageFormat(self._wand, format)
         assert format == wand.MagickGetImageFormat(self._wand)

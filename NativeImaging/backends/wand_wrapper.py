@@ -148,3 +148,9 @@ MagickResizeImage = _wandlib.MagickScaleImage
 MagickResizeImage.restype = MagickBooleanType
 MagickResizeImage.argtypes = [WAND_P, ctypes.c_ulong, ctypes.c_ulong]
 MagickResizeImage.errcheck = _wand_errcheck
+
+MagickCropImage = _wandlib.MagickCropImage
+MagickCropImage.restype = MagickBooleanType
+MagickCropImage.argtypes = [WAND_P, ctypes.c_ulong, ctypes.c_ulong,
+                              ctypes.c_ulong, ctypes.c_ulong]
+MagickCropImage.errcheck = _wand_errcheck
