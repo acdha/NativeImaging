@@ -52,7 +52,8 @@ class GraphicsMagickImage(Image):
         return self.resize(new_size, resample=resample)
 
     def resize(self, size, resample=ANTIALIAS):
-        return wand.MagickResizeImage(self._wand, size[0], size[1], resample, 1)
+        wand.MagickResizeImage(self._wand, size[0], size[1], resample, 1)
+        return self  # TODO: return copy
 
     def save(self,  fp, format="JPEG", **kwargs):
         wand.MagickSetImageFormat(self._wand, format)
