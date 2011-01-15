@@ -34,14 +34,17 @@ class GraphicsMagickImage(Image):
         else:
             wand.MagickReadImage(i._wand, fp)
 
-        i.size = (wand.MagickGetImageWidth(i._wand),
-                    wand.MagickGetImageHeight(i._wand))
 
         return i
 
+    @property
+    def size(self):
+        width = wand.MagickGetImageWidth(self._wand)
+        height = wand.MagickGetImageHeight(self._wand)
+        return (width, height)
+
     def thumbnail(self, size, resample=ANTIALIAS):
-        orig_width = x = wand.MagickGetImageWidth(self._wand)
-        orig_height = y = wand.MagickGetImageHeight(self._wand)
+        x, y = self.size
 
         if x > size[0]: y = max(y * size[0] / x, 1); x = size[0]
         if y > size[1]: x = max(x * size[1] / y, 1); y = size[1]
