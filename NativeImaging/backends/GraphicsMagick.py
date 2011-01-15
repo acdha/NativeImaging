@@ -55,7 +55,8 @@ class GraphicsMagickImage(Image):
         return self.resize(new_size, resample=resample)
 
     def resize(self, size, resample=ANTIALIAS):
-        wand.MagickResizeImage(self._wand, size[0], size[1], resample, 1)
+        width, height = int(size[0]), int(size[1])
+        wand.MagickResizeImage(self._wand, width, height, resample, 1)
         return self  # TODO: return copy
 
     def crop(self, box):
