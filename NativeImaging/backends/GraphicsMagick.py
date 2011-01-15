@@ -28,12 +28,12 @@ class GraphicsMagickImage(Image):
     def open(cls, fp, mode="rb"):
         i = cls()
 
-        if hasattr(fp, "read"):
+        if isinstance(fp, file):
             c_file = ctypes.pythonapi.PyFile_AsFile(fp)
             wand.MagickReadImageFile(i._wand, c_file)
         else:
-            wand.MagickReadImage(i._wand, fp)
-
+            b = ctypes.create_string_buffer(fp.read())
+            wand.MagickReadImageBlob(i._wand, b, ctypes.sizeof(b))
 
         return i
 
@@ -70,7 +70,7 @@ class GraphicsMagickImage(Image):
         wand.MagickSetImageFormat(self._wand, format)
         assert format == wand.MagickGetImageFormat(self._wand)
 
-        if hasattr(fp, 'fileno'):
+        if isinstance(fp, file):
             c_file = ctypes.pythonapi.PyFile_AsFile(fp)
             wand.MagickWriteImageFile(self._wand, c_file)
         else:
