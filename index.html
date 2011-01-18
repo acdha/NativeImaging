@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
-    <title>Welcome to Native Imaging’s documentation! &mdash; Native Imaging v0.0.1 documentation</title>
+    <title>Native Imaging &mdash; Native Imaging v0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,6 +23,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Native Imaging v0.0.1 documentation" href="#" />
+    <link rel="next" title="Common API" href="api.html" />
   </head>
   <body>
     <div class="related">
@@ -31,6 +32,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="Common API"
+             accesskey="N">next</a> |</li>
         <li><a href="#">Native Imaging v0.0.1 documentation</a> &raquo;</li>
       </ul>
     </div>
@@ -40,21 +47,47 @@
         <div class="bodywrapper">
           <div class="body">
 
-  <div class="section" id="welcome-to-native-imaging-s-documentation">
-<h1>Welcome to Native Imaging&#8217;s documentation!<a class="headerlink" href="#welcome-to-native-imaging-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
+  <div class="section" id="native-imaging">
+<h1>Native Imaging<a class="headerlink" href="#native-imaging" title="Permalink to this headline">¶</a></h1>
+<p>This is an experiment in seeing how far you can get using platform-provided
+packages such as GraphicsMagick, CoreImage, etc. to provide a PIL-like
+interface but taking advantage of their support for more advanced features
+such as threading, broader format support (including JPEG-2000),
+vectorization, etc.</p>
+<p>The goal is simple: a user should be able to install NativeImaging and do
+something like this to a program which is currently using PIL:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">NativeImaging.backends.GraphicsMagick</span> <span class="kn">import</span> <span class="n">GraphicsMagickImage</span> <span class="k">as</span> <span class="n">Image</span>
+</pre></div>
+</div>
+<div class="section" id="status">
+<h2>Status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h2>
+<p>Currently only the most basic use-case is supported: loading an image,
+resizing it and saving the result. Testing reveals mixed results, beating PIL
+when producing thumbnails from large TIFFs and underperforming when
+thumbnailing equivalent JPEGs, both by about 2:1. Further profiling is
+warranted.</p>
+</div>
+</div>
+<div class="section" id="table-of-contents">
+<h1>Table of Contents<a class="headerlink" href="#table-of-contents" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
-<ul class="simple">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Common API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends/aware.html">AWARE Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends/graphicsmagick.html">Graphics Magick Backend</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="backends/graphicsmagick.html#module-NativeImaging.backends.GraphicsMagick">High-Level</a></li>
+<li class="toctree-l2"><a class="reference internal" href="backends/graphicsmagick.html#module-NativeImaging.backends.wand_wrapper">Low-Level</a></li>
+</ul>
+</li>
 </ul>
 </div>
+<div class="section" id="development">
+<h2>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h2>
+<p>You&#8217;ll want to install nose to run the tests and Sphinx to build the
+documentation. For convenience, a requirements-devel.pip file has been provided
+and you may simply use &#8220;pip install -r requirements-devel.pip&#8221; to keep your
+dependencies current.</p>
 </div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
-</ul>
 </div>
 
 
@@ -65,12 +98,19 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Welcome to Native Imaging&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#">Native Imaging</a><ul>
+<li><a class="reference internal" href="#status">Status</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+<li><a class="reference internal" href="#table-of-contents">Table of Contents</a><ul>
+<li><a class="reference internal" href="#development">Development</a></li>
+</ul>
+</li>
 </ul>
 
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">Common API</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
@@ -99,6 +139,12 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="Common API"
+             >next</a> |</li>
         <li><a href="#">Native Imaging v0.0.1 documentation</a> &raquo;</li>
       </ul>
     </div>

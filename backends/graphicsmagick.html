@@ -1,0 +1,192 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Graphics Magick Backend &mdash; Native Imaging v0.0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Native Imaging v0.0.1 documentation" href="../index.html" />
+    <link rel="prev" title="AWARE Backend" href="aware.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="aware.html" title="AWARE Backend"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+
+  <div class="section" id="graphics-magick-backend">
+<h1>Graphics Magick Backend<a class="headerlink" href="#graphics-magick-backend" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-NativeImaging.backends.GraphicsMagick">
+<span id="high-level"></span><h2>High-Level<a class="headerlink" href="#module-NativeImaging.backends.GraphicsMagick" title="Permalink to this headline">¶</a></h2>
+<p>An Image-compatible backend using GraphicsMagick via ctypes</p>
+<dl class="class">
+<dt id="NativeImaging.backends.GraphicsMagick.GraphicsMagickImage">
+<em class="property">class </em><tt class="descclassname">NativeImaging.backends.GraphicsMagick.</tt><tt class="descname">GraphicsMagickImage</tt><big>(</big><em>magick_wand=None</em><big>)</big><a class="reference internal" href="../_modules/NativeImaging/backends/GraphicsMagick.html#GraphicsMagickImage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../api.html#NativeImaging.api.Image" title="NativeImaging.api.Image"><tt class="xref py py-class docutils literal"><span class="pre">NativeImaging.api.Image</span></tt></a></p>
+<dl class="method">
+<dt id="NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/NativeImaging/backends/GraphicsMagick.html#GraphicsMagickImage.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.crop">
+<tt class="descname">crop</tt><big>(</big><em>box</em><big>)</big><a class="reference internal" href="../_modules/NativeImaging/backends/GraphicsMagick.html#GraphicsMagickImage.crop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.crop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.open">
+<em class="property">classmethod </em><tt class="descname">open</tt><big>(</big><em>fp</em>, <em>mode='rb'</em><big>)</big><a class="reference internal" href="../_modules/NativeImaging/backends/GraphicsMagick.html#GraphicsMagickImage.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.open" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.resize">
+<tt class="descname">resize</tt><big>(</big><em>size</em>, <em>resample=13</em><big>)</big><a class="reference internal" href="../_modules/NativeImaging/backends/GraphicsMagick.html#GraphicsMagickImage.resize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.resize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.save">
+<tt class="descname">save</tt><big>(</big><em>fp</em>, <em>format='JPEG'</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/NativeImaging/backends/GraphicsMagick.html#GraphicsMagickImage.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.size">
+<tt class="descname">size</tt><a class="reference internal" href="../_modules/NativeImaging/backends/GraphicsMagick.html#GraphicsMagickImage.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.thumbnail">
+<tt class="descname">thumbnail</tt><big>(</big><em>size</em>, <em>resample=13</em><big>)</big><a class="reference internal" href="../_modules/NativeImaging/backends/GraphicsMagick.html#GraphicsMagickImage.thumbnail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.thumbnail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-NativeImaging.backends.wand_wrapper">
+<span id="low-level"></span><h2>Low-Level<a class="headerlink" href="#module-NativeImaging.backends.wand_wrapper" title="Permalink to this headline">¶</a></h2>
+<p>ctypes wrappers for GraphicsMagick functions with error-handling</p>
+<p>n.b. Heavy consultation of <a class="reference external" href="http://www.graphicsmagick.org/wand/magick_wand.html">http://www.graphicsmagick.org/wand/magick_wand.html</a>
+and the ctypes documentation is advised</p>
+<dl class="class">
+<dt id="NativeImaging.backends.wand_wrapper.FILE">
+<em class="property">class </em><tt class="descclassname">NativeImaging.backends.wand_wrapper.</tt><tt class="descname">FILE</tt><a class="reference internal" href="../_modules/NativeImaging/backends/wand_wrapper.html#FILE"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.wand_wrapper.FILE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NativeImaging.backends.wand_wrapper.FILE_P">
+<tt class="descclassname">NativeImaging.backends.wand_wrapper.</tt><tt class="descname">FILE_P</tt><a class="headerlink" href="#NativeImaging.backends.wand_wrapper.FILE_P" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">LP_FILE</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="NativeImaging.backends.wand_wrapper.MagickWand">
+<em class="property">class </em><tt class="descclassname">NativeImaging.backends.wand_wrapper.</tt><tt class="descname">MagickWand</tt><a class="reference internal" href="../_modules/NativeImaging/backends/wand_wrapper.html#MagickWand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.wand_wrapper.MagickWand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="NativeImaging.backends.wand_wrapper.WAND_P">
+<tt class="descclassname">NativeImaging.backends.wand_wrapper.</tt><tt class="descname">WAND_P</tt><a class="headerlink" href="#NativeImaging.backends.wand_wrapper.WAND_P" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">LP_MagickWand</span></tt></p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="NativeImaging.backends.wand_wrapper.WandException">
+<em class="property">exception </em><tt class="descclassname">NativeImaging.backends.wand_wrapper.</tt><tt class="descname">WandException</tt><a class="reference internal" href="../_modules/NativeImaging/backends/wand_wrapper.html#WandException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.backends.wand_wrapper.WandException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Graphics Magick Backend</a><ul>
+<li><a class="reference internal" href="#module-NativeImaging.backends.GraphicsMagick">High-Level</a></li>
+<li><a class="reference internal" href="#module-NativeImaging.backends.wand_wrapper">Low-Level</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="aware.html"
+                        title="previous chapter">AWARE Backend</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/backends/graphicsmagick.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="aware.html" title="AWARE Backend"
+             >previous</a> |</li>
+        <li><a href="../index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Chris Adams, Dan Krech, Ed Summers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

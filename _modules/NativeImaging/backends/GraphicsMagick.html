@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>NativeImaging.backends.GraphicsMagick &mdash; Native Imaging v0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Native Imaging v0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li>
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+
+  <h1>Source code for NativeImaging.backends.GraphicsMagick</h1><div class="highlight"><pre>
+<span class="c"># encoding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">An Image-compatible backend using GraphicsMagick via ctypes</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">ctypes</span>
+
+<span class="kn">from</span> <span class="nn">NativeImaging.api</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="kn">import</span> <span class="nn">wand_wrapper</span> <span class="kn">as</span> <span class="nn">wand</span>
+
+
+<div class="viewcode-block" id="GraphicsMagickImage"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage">[docs]</a><span class="k">class</span> <span class="nc">GraphicsMagickImage</span><span class="p">(</span><span class="n">Image</span><span class="p">):</span>
+    <span class="n">_wand</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="n">NONE</span> <span class="o">=</span> <span class="n">NEAREST</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ANTIALIAS</span> <span class="o">=</span> <span class="n">wand</span><span class="o">.</span><span class="n">FilterTypes</span><span class="p">[</span><span class="s">&#39;LanczosFilter&#39;</span><span class="p">]</span>
+    <span class="n">CUBIC</span> <span class="o">=</span> <span class="n">BICUBIC</span> <span class="o">=</span> <span class="n">wand</span><span class="o">.</span><span class="n">FilterTypes</span><span class="p">[</span><span class="s">&#39;CubicFilter&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">magick_wand</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">magick_wand</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wand</span> <span class="o">=</span> <span class="n">wand</span><span class="o">.</span><span class="n">NewMagickWand</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wand</span> <span class="o">=</span> <span class="n">magick_wand</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="s">&quot;NewMagickWand() failed???&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_wand</span> <span class="o">=</span> <span class="n">wand</span><span class="o">.</span><span class="n">DestroyMagickWand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="GraphicsMagickImage.open"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;rb&quot;</span><span class="p">):</span>
+        <span class="n">__doc__</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="o">.</span><span class="n">__doc__</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">wand</span><span class="o">.</span><span class="n">MagickReadImage</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+            <span class="n">c_file</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">pythonapi</span><span class="o">.</span><span class="n">PyFile_AsFile</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="n">wand</span><span class="o">.</span><span class="n">MagickReadImageFile</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">c_file</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">&quot;read&quot;</span><span class="p">):</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">create_string_buffer</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+            <span class="n">wand</span><span class="o">.</span><span class="n">MagickReadImageBlob</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">sizeof</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&quot;Cannot open </span><span class="si">%r</span><span class="s"> object&quot;</span> <span class="o">%</span> <span class="n">fp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">i</span>
+</div>
+<div class="viewcode-block" id="GraphicsMagickImage.copy"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="c"># We have a little bit of song-and-dance here because we need to avoid</span>
+        <span class="c"># deepcopy() attempting to copy _wand, which would be pointless since</span>
+        <span class="c"># we&#39;re about to replace it anyway:</span>
+        <span class="n">new_wand</span> <span class="o">=</span> <span class="n">wand</span><span class="o">.</span><span class="n">CloneMagickWand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">)</span>
+        <span class="n">new_image</span> <span class="o">=</span> <span class="n">GraphicsMagickImage</span><span class="p">(</span><span class="n">magick_wand</span><span class="o">=</span><span class="n">new_wand</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s">&quot;_wand&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">new_image</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">memo</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">new_image</span>
+
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="GraphicsMagickImage.size"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">wand</span><span class="o">.</span><span class="n">MagickGetImageWidth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">)</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">wand</span><span class="o">.</span><span class="n">MagickGetImageHeight</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphicsMagickImage.thumbnail"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.thumbnail">[docs]</a>    <span class="k">def</span> <span class="nf">thumbnail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">resample</span><span class="o">=</span><span class="n">ANTIALIAS</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">Image</span><span class="o">.</span><span class="n">thumbnail</span><span class="o">.</span><span class="n">__doc__</span>
+
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+
+        <span class="k">if</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">height</span> <span class="o">*</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">width</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">height</span> <span class="o">&gt;</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">height</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">wand</span><span class="o">.</span><span class="n">MagickStripImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">)</span>
+        <span class="n">wand</span><span class="o">.</span><span class="n">MagickResizeImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">resample</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GraphicsMagickImage.resize"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.resize">[docs]</a>    <span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">resample</span><span class="o">=</span><span class="n">ANTIALIAS</span><span class="p">):</span>
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">wand</span><span class="o">.</span><span class="n">MagickResizeImage</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">resample</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">im</span>
+</div>
+<div class="viewcode-block" id="GraphicsMagickImage.crop"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.crop">[docs]</a>    <span class="k">def</span> <span class="nf">crop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box</span><span class="p">):</span>
+        <span class="c"># TODO: Investigate whether this can be further optimized by using the</span>
+        <span class="c"># lower-level GraphicsMagick CropImage function directly since that is</span>
+        <span class="c"># non-destructive:</span>
+        <span class="c"># http://www.graphicsmagick.org/api/transform.html#cropimage</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">box</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span>
+
+        <span class="n">im</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">wand</span><span class="o">.</span><span class="n">MagickCropImage</span><span class="p">(</span><span class="n">im</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">im</span>
+</div>
+<div class="viewcode-block" id="GraphicsMagickImage.save"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.GraphicsMagick.GraphicsMagickImage.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;JPEG&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">wand</span><span class="o">.</span><span class="n">MagickSetImageFormat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">format</span> <span class="o">==</span> <span class="n">wand</span><span class="o">.</span><span class="n">MagickGetImageFormat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">basestring</span><span class="p">):</span>
+            <span class="n">wand</span><span class="o">.</span><span class="n">MagickWriteImage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+            <span class="n">c_file</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">pythonapi</span><span class="o">.</span><span class="n">PyFile_AsFile</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+            <span class="n">wand</span><span class="o">.</span><span class="n">MagickReadImageFile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span> <span class="n">c_file</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s">&quot;write&quot;</span><span class="p">):</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_size_t</span><span class="p">()</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">wand</span><span class="o">.</span><span class="n">MagickWriteImageBlob</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_wand</span><span class="p">,</span>
+                                                <span class="n">ctypes</span><span class="o">.</span><span class="n">pointer</span><span class="p">(</span><span class="n">length</span><span class="p">))</span>
+            <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">length</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Don&#39;t know how to write to a </span><span class="si">%r</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">fp</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Chris Adams, Dan Krech, Ed Summers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

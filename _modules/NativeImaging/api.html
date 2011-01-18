@@ -1,0 +1,644 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>NativeImaging.api &mdash; Native Imaging v0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Native Imaging v0.0.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li>
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+
+  <h1>Source code for NativeImaging.api</h1><div class="highlight"><pre>
+<span class="c"># encoding: utf-8</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Our base &quot;public&quot; API, which is essentially the PIL Image class with almost</span>
+<span class="sd">all methods raising :exc:`NotImplementedError`</span>
+
+<span class="sd">Backends are implemented by subclassing and actually doing something with the</span>
+<span class="sd">results</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># Constants defined to match PIL:</span>
+
+<span class="c"># transpose</span>
+<span class="n">FLIP_LEFT_RIGHT</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">FLIP_TOP_BOTTOM</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">ROTATE_90</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">ROTATE_180</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">ROTATE_270</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c"># transforms</span>
+<span class="n">AFFINE</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">EXTENT</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">PERSPECTIVE</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">QUAD</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">MESH</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="c"># resampling filters</span>
+<span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">NEAREST</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">ANTIALIAS</span> <span class="o">=</span> <span class="mi">1</span> <span class="c"># 3-lobed lanczos</span>
+<span class="n">LINEAR</span> <span class="o">=</span> <span class="n">BILINEAR</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">CUBIC</span> <span class="o">=</span> <span class="n">BICUBIC</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c"># dithers</span>
+<span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">NEAREST</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">ORDERED</span> <span class="o">=</span> <span class="mi">1</span> <span class="c"># Not yet implemented</span>
+<span class="n">RASTERIZE</span> <span class="o">=</span> <span class="mi">2</span> <span class="c"># Not yet implemented</span>
+<span class="n">FLOYDSTEINBERG</span> <span class="o">=</span> <span class="mi">3</span> <span class="c"># default</span>
+
+<span class="c"># palettes/quantizers</span>
+<span class="n">WEB</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">ADAPTIVE</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c"># categories</span>
+<span class="n">NORMAL</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">SEQUENCE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">CONTAINER</span> <span class="o">=</span> <span class="mi">2</span>
+
+
+<div class="viewcode-block" id="Image"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image">[docs]</a><span class="k">class</span> <span class="nc">Image</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all NativeImaging backends</span>
+<span class="sd">    </span>
+<span class="sd">    Should be compatible with PIL.Image or raise NotImplementedError()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">format</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">format_description</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">palette</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">readonly</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Image.open"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s">&quot;r&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__module__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Image.copy"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an exact copy of the current image which may be destructively</span>
+<span class="sd">        modified without affecting the original. Backends may choose to</span>
+<span class="sd">        implement Copy-On-Write for performance so callers should not expect</span>
+<span class="sd">        resource handles or object ids to change simply by calling copy().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.tostring"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.tostring">[docs]</a>    <span class="k">def</span> <span class="nf">tostring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encoder_name</span><span class="o">=</span><span class="s">&quot;raw&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.tobitmap"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.tobitmap">[docs]</a>    <span class="k">def</span> <span class="nf">tobitmap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;image&quot;</span><span class="p">):</span>
+        <span class="s">&quot;Return image as an XBM bitmap&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.fromstring"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.fromstring">[docs]</a>    <span class="k">def</span> <span class="nf">fromstring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">decoder_name</span><span class="o">=</span><span class="s">&quot;raw&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="s">&quot;Load data to image from binary string&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.load"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Explicitly load pixel data.&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.verify"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;Verify file contents.&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.convert"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.convert">[docs]</a>    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">dither</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                <span class="n">palette</span><span class="o">=</span><span class="n">WEB</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+        <span class="s">&quot;Convert to other pixel format&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.quantize"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.quantize">[docs]</a>    <span class="k">def</span> <span class="nf">quantize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">kmeans</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.crop"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.crop">[docs]</a>    <span class="k">def</span> <span class="nf">crop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a cropped version of the image</span>
+<span class="sd">        :param The crop rectangle, as a (left, upper, right, lower)-tuple.</span>
+<span class="sd">        :rtype: :class:Image object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.draft"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.draft">[docs]</a>    <span class="k">def</span> <span class="nf">draft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configures the image file loader so it returns a version of the</span>
+<span class="sd">        image that as closely as possible matches the given mode and</span>
+<span class="sd">        size.  For example, you can use this method to convert a colour</span>
+<span class="sd">        JPEG to greyscale while loading it, or to extract a 128x192</span>
+<span class="sd">        version from a PCD file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.filter"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.filter">[docs]</a>    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">filter</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Apply environment filter to image</span>
+
+<span class="sd">        Filters this image using the given filter. For a list of available</span>
+<span class="sd">        filters, see the `ImageFilter` module.</span>
+
+<span class="sd">        :param filter Filter kernel.</span>
+<span class="sd">        :rtype: :class:Image object</span>
+<span class="sd">        @see ImageFilter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.getbands"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.getbands">[docs]</a>    <span class="k">def</span> <span class="nf">getbands</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a tuple containing the name of each band in this image.</span>
+<span class="sd">        For example, getbands on an RGB image returns (&quot;R&quot;, &quot;G&quot;, &quot;B&quot;).</span>
+
+<span class="sd">        :return: A tuple containing band names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.getbbox"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.getbbox">[docs]</a>    <span class="k">def</span> <span class="nf">getbbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get bounding box of actual data (non-zero pixels) in image</span>
+
+<span class="sd">        Calculates the bounding box of the non-zero regions in the</span>
+<span class="sd">        image.</span>
+
+<span class="sd">        :return: The bounding box is returned as a 4-tuple defining the</span>
+<span class="sd">           left, upper, right, and lower pixel coordinate. If the image</span>
+<span class="sd">           is completely empty, this method returns None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">im</span><span class="o">.</span><span class="n">getbbox</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.getcolors"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.getcolors">[docs]</a>    <span class="k">def</span> <span class="nf">getcolors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxcolors</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get colors from image, up to given limit</span>
+<span class="sd">        Returns a list of colors used in this image.</span>
+
+<span class="sd">        :param maxcolors: Maximum number of colors.  If this number is</span>
+<span class="sd">           exceeded, this method returns None.  The default limit is</span>
+<span class="sd">           256 colors.</span>
+<span class="sd">        :return: An unsorted list of (count, pixel) values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.getdata"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.getdata">[docs]</a>    <span class="k">def</span> <span class="nf">getdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">band</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get image data as sequence object&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.getextrema"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.getextrema">[docs]</a>    <span class="k">def</span> <span class="nf">getextrema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get min/max value</span>
+
+<span class="sd">        Gets the the minimum and maximum pixel values for each band in</span>
+<span class="sd">        the image.</span>
+
+<span class="sd">        :return: For a single-band image, a 2-tuple containing the</span>
+<span class="sd">           minimum and maximum pixel value.  For a multi-band image,</span>
+<span class="sd">           a tuple containing one 2-tuple for each band.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.getpalette"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.getpalette">[docs]</a>    <span class="k">def</span> <span class="nf">getpalette</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get palette contents</span>
+
+<span class="sd">        :return: A list of color values [r, g, b, ...], or None if the</span>
+<span class="sd">           image has no palette.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.getpixel"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.getpixel">[docs]</a>    <span class="k">def</span> <span class="nf">getpixel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get pixel value</span>
+
+<span class="sd">        :param xy The coordinate, given as (x, y).</span>
+<span class="sd">        :return: The pixel value.  If the image is a multi-layer image,</span>
+<span class="sd">           this method returns a tuple.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.getprojection"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.getprojection">[docs]</a>    <span class="k">def</span> <span class="nf">getprojection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get projection to x and y axes</span>
+
+<span class="sd">        Returns the horizontal and vertical projection.</span>
+
+<span class="sd">        :return: Two sequences, indicating where there are non-zero</span>
+<span class="sd">            pixels along the X-axis and the Y-axis, respectively.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.histogram"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.histogram">[docs]</a>    <span class="k">def</span> <span class="nf">histogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">extrema</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Take histogram of image</span>
+
+<span class="sd">        Returns a histogram for the image. The histogram is returned as</span>
+<span class="sd">        a list of pixel counts, one for each pixel value in the source</span>
+<span class="sd">        image. If the image has more than one band, the histograms for</span>
+<span class="sd">        all bands are concatenated (for example, the histogram for an</span>
+<span class="sd">        &quot;RGB&quot; image contains 768 values).</span>
+
+<span class="sd">        A bilevel image (mode &quot;1&quot;) is treated as a greyscale (&quot;L&quot;) image</span>
+<span class="sd">        by this method.</span>
+
+<span class="sd">        If a mask is provided, the method returns a histogram for those</span>
+<span class="sd">        parts of the image where the mask image is non-zero. The mask</span>
+<span class="sd">        image must have the same size as the image, and be either a</span>
+<span class="sd">        bi-level image (mode &quot;1&quot;) or a greyscale image (&quot;L&quot;).</span>
+
+<span class="sd">        @def histogram(mask=None)</span>
+<span class="sd">        :param mask An optional mask.</span>
+<span class="sd">        :return: A list containing pixel counts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.paste"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.paste">[docs]</a>    <span class="k">def</span> <span class="nf">paste</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">im</span><span class="p">,</span> <span class="n">box</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Paste other image into region</span>
+
+<span class="sd">        Pastes another image into this image. The box argument is either</span>
+<span class="sd">        a 2-tuple giving the upper left corner, a 4-tuple defining the</span>
+<span class="sd">        left, upper, right, and lower pixel coordinate, or None (same as</span>
+<span class="sd">        (0, 0)).  If a 4-tuple is given, the size of the pasted image</span>
+<span class="sd">        must match the size of the region.</span>
+
+<span class="sd">        If the modes don&#39;t match, the pasted image is converted to the</span>
+<span class="sd">        mode of this image (see the {@link #Image.convert} method for</span>
+<span class="sd">        details).</span>
+
+<span class="sd">        Instead of an image, the source can be a integer or tuple</span>
+<span class="sd">        containing pixel values.  The method then fills the region</span>
+<span class="sd">        with the given colour.  When creating RGB images, you can</span>
+<span class="sd">        also use colour strings as supported by the ImageColor module.</span>
+
+<span class="sd">        If a mask is given, this method updates only the regions</span>
+<span class="sd">        indicated by the mask.  You can use either &quot;1&quot;, &quot;L&quot; or &quot;RGBA&quot;</span>
+<span class="sd">        images (in the latter case, the alpha band is used as mask).</span>
+<span class="sd">        Where the mask is 255, the given image is copied as is.  Where</span>
+<span class="sd">        the mask is 0, the current value is preserved.  Intermediate</span>
+<span class="sd">        values can be used for transparency effects.</span>
+
+<span class="sd">        Note that if you paste an &quot;RGBA&quot; image, the alpha band is</span>
+<span class="sd">        ignored.  You can work around this by using the same image as</span>
+<span class="sd">        both source image and mask.</span>
+
+<span class="sd">        :param im Source image or pixel value (integer or tuple).</span>
+<span class="sd">        :param box An optional 4-tuple giving the region to paste into.</span>
+<span class="sd">           If a 2-tuple is used instead, it&#39;s treated as the upper left</span>
+<span class="sd">           corner.  If omitted or None, the source is pasted into the</span>
+<span class="sd">           upper left corner.</span>
+
+<span class="sd">           If an image is given as the second argument and there is no</span>
+<span class="sd">           third, the box defaults to (0, 0), and the second argument</span>
+<span class="sd">           is interpreted as a mask image.</span>
+<span class="sd">        :param mask An optional mask image.</span>
+<span class="sd">        :rtype: :class:Image object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.point"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.point">[docs]</a>    <span class="k">def</span> <span class="nf">point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lut</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Maps this image through a lookup table or function.</span>
+
+<span class="sd">        :param lut A lookup table, containing 256 values per band in the</span>
+<span class="sd">           image. A function can be used instead, it should take a single</span>
+<span class="sd">           argument. The function is called once for each possible pixel</span>
+<span class="sd">           value, and the resulting table is applied to all bands of the</span>
+<span class="sd">           image.</span>
+<span class="sd">        :param mode Output mode (default is same as input).  In the</span>
+<span class="sd">           current version, this can only be used if the source image</span>
+<span class="sd">           has mode &quot;L&quot; or &quot;P&quot;, and the output has mode &quot;1&quot;.</span>
+<span class="sd">        :rtype: :class:Image object</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.putalpha"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.putalpha">[docs]</a>    <span class="k">def</span> <span class="nf">putalpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set alpha layer</span>
+<span class="sd">        Adds or replaces the alpha layer in this image.  If the image</span>
+<span class="sd">        does not have an alpha layer, it&#39;s converted to &quot;LA&quot; or &quot;RGBA&quot;.</span>
+<span class="sd">        The new layer must be either &quot;L&quot; or &quot;1&quot;.</span>
+
+<span class="sd">        :param im The new alpha layer.  This can either be an &quot;L&quot; or &quot;1&quot;</span>
+<span class="sd">           image having the same size as this image, or an integer or</span>
+<span class="sd">           other color value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.putdata"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.putdata">[docs]</a>    <span class="k">def</span> <span class="nf">putdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Put data from a sequence object into an image</span>
+
+<span class="sd">        Copies pixel data to this image.  This method copies data from a</span>
+<span class="sd">        sequence object into the image, starting at the upper left</span>
+<span class="sd">        corner (0, 0), and continuing until either the image or the</span>
+<span class="sd">        sequence ends.  The scale and offset values are used to adjust</span>
+<span class="sd">        the sequence values: pixel = value*scale + offset.</span>
+
+<span class="sd">        :param data A sequence object.</span>
+<span class="sd">        :param scale An optional scale value.  The default is 1.0.</span>
+<span class="sd">        :param offset An optional offset value.  The default is 0.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.putpalette"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.putpalette">[docs]</a>    <span class="k">def</span> <span class="nf">putpalette</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">rawmode</span><span class="o">=</span><span class="s">&quot;RGB&quot;</span><span class="p">):</span>
+        <span class="s">&quot;Put palette data into an image.&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.putpixel"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.putpixel">[docs]</a>    <span class="k">def</span> <span class="nf">putpixel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xy</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modifies the pixel at the given position. The colour is given as</span>
+<span class="sd">        a single numerical value for single-band images, and a tuple for</span>
+<span class="sd">        multi-band images.</span>
+
+<span class="sd">        Note that this method is relatively slow.  For more extensive</span>
+<span class="sd">        changes, use {@link #Image.paste} or the ImageDraw module</span>
+<span class="sd">        instead.</span>
+
+<span class="sd">        :param xy The pixel coordinate, given as (x, y).</span>
+<span class="sd">        :param value The pixel value.</span>
+<span class="sd">        @see #Image.paste</span>
+<span class="sd">        @see #Image.putdata</span>
+<span class="sd">        @see ImageDraw</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.resize"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.resize">[docs]</a>    <span class="k">def</span> <span class="nf">resize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">resample</span><span class="o">=</span><span class="n">NEAREST</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a resized copy of this image.</span>
+
+<span class="sd">        @def resize(size, filter=NEAREST)</span>
+<span class="sd">        :param size The requested size in pixels, as a 2-tuple:</span>
+<span class="sd">           (width, height).</span>
+
+<span class="sd">        TODO: Revisit the filter description:</span>
+<span class="sd">        :param filter An optional resampling filter.  This can be</span>
+<span class="sd">           one of NEAREST (use nearest neighbour), BILINEAR</span>
+<span class="sd">           (linear interpolation in a 2x2 environment), BICUBIC</span>
+<span class="sd">           (cubic spline interpolation in a 4x4 environment), or</span>
+<span class="sd">           ANTIALIAS (a high-quality downsampling filter).</span>
+<span class="sd">        :rtype: :class:Image object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.rotate"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.rotate">[docs]</a>    <span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="n">NEAREST</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a rotated copy of this image.  This method returns a</span>
+<span class="sd">        copy of this image, rotated the given number of degrees counter</span>
+<span class="sd">        clockwise around its centre.</span>
+
+<span class="sd">        @def rotate(angle, filter=NEAREST)</span>
+<span class="sd">        :param angle In degrees counter clockwise.</span>
+<span class="sd">        :param filter An optional resampling filter.  This can be</span>
+<span class="sd">           one of NEAREST (use nearest neighbour), BILINEAR</span>
+<span class="sd">           (linear interpolation in a 2x2 environment), or BICUBIC</span>
+<span class="sd">           (cubic spline interpolation in a 4x4 environment).</span>
+<span class="sd">           If omitted, or if the image has mode &quot;1&quot; or &quot;P&quot;, it is</span>
+<span class="sd">           set NEAREST.</span>
+<span class="sd">        :param expand Optional expansion flag.  If true, expands the output</span>
+<span class="sd">           image to make it large enough to hold the entire rotated image.</span>
+<span class="sd">           If false or omitted, make the output image the same size as the</span>
+<span class="sd">           input image.</span>
+<span class="sd">        :rtype: :class:Image object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.save"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves this image under the given filename.  If no format is</span>
+<span class="sd">        specified, the format to use is determined from the filename</span>
+<span class="sd">        extension, if possible.</span>
+
+<span class="sd">        Keyword options can be used to provide additional instructions</span>
+<span class="sd">        to the writer. If a writer doesn&#39;t recognise an option, it is</span>
+<span class="sd">        silently ignored. The available options are described later in</span>
+<span class="sd">        this handbook.</span>
+
+<span class="sd">        You can use a file object instead of a filename. In this case,</span>
+<span class="sd">        you must always specify the format. The file object must</span>
+<span class="sd">        implement the seek, tell, and write</span>
+<span class="sd">        methods, and be opened in binary mode.</span>
+
+<span class="sd">        @def save(file, format=None, **options)</span>
+<span class="sd">        :param file File name or file object.</span>
+<span class="sd">        :param format Optional format override.  If omitted, the</span>
+<span class="sd">           format to use is determined from the filename extension.</span>
+<span class="sd">           If a file object was used instead of a filename, this</span>
+<span class="sd">           parameter should always be used.</span>
+<span class="sd">        :param **options Extra parameters to the image writer.</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        @exception KeyError If the output format could not be determined</span>
+<span class="sd">           from the file name.  Use the format option to solve this.</span>
+<span class="sd">        @exception IOError If the file could not be written.  The file</span>
+<span class="sd">           may have been created, and may contain partial data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.seek"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.seek">[docs]</a>    <span class="k">def</span> <span class="nf">seek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Seeks to the given frame in this sequence file. If you seek</span>
+<span class="sd">        beyond the end of the sequence, the method raises an</span>
+<span class="sd">        EOFError exception. When a sequence file is opened, the</span>
+<span class="sd">        library automatically seeks to frame 0.</span>
+
+<span class="sd">        Note that in the current version of the library, most sequence</span>
+<span class="sd">        formats only allows you to seek to the next frame.</span>
+
+<span class="sd">        :param frame Frame number, starting at 0.</span>
+<span class="sd">        @exception EOFError If the call attempts to seek beyond the end</span>
+<span class="sd">            of the sequence.</span>
+<span class="sd">        @see #Image.tell</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.show"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Displays this image. This method is mainly intended for debugging</span>
+<span class="sd">        purposes.</span>
+
+<span class="sd">        On Unix platforms, this method saves the image to a temporary PPM</span>
+<span class="sd">        file, and calls the xv utility.</span>
+
+<span class="sd">        On Windows, it saves the image to a temporary BMP file, and uses the</span>
+<span class="sd">        standard BMP display utility to show it (usually Paint).</span>
+
+<span class="sd">        @def show(title=None)</span>
+<span class="sd">        :param title Optional title to use for the image window,</span>
+<span class="sd">           where possible.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.split"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.split">[docs]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split this image into individual bands. This method returns a tuple of</span>
+<span class="sd">        individual image bands from an image. For example, splitting an &quot;RGB&quot;</span>
+<span class="sd">        image creates three new images each containing a copy of one of the</span>
+<span class="sd">        original bands (red, green, blue).</span>
+
+<span class="sd">        :return: A tuple containing bands.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.tell"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.tell">[docs]</a>    <span class="k">def</span> <span class="nf">tell</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the current frame number.</span>
+
+<span class="sd">        :return: Frame number, starting with 0.</span>
+<span class="sd">        @see #Image.seek</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.thumbnail"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.thumbnail">[docs]</a>    <span class="k">def</span> <span class="nf">thumbnail</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">resample</span><span class="o">=</span><span class="n">NEAREST</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create thumbnail representation (modifies image in place)</span>
+
+<span class="sd">        Make this image into a thumbnail. This method modifies the image to</span>
+<span class="sd">        contain a thumbnail version of itself, no larger than the given size.</span>
+<span class="sd">        This method calculates an appropriate thumbnail size to preserve the</span>
+<span class="sd">        aspect of the image, calls the {@link #Image.draft} method to</span>
+<span class="sd">        configure the file reader (where applicable), and finally resizes the</span>
+<span class="sd">        image.</span>
+
+<span class="sd">         Note that the bilinear and bicubic filters in the current version of</span>
+<span class="sd">        PIL are not well-suited for thumbnail generation. You should use</span>
+<span class="sd">        ANTIALIAS unless speed is much more important than quality.</span>
+
+<span class="sd">         Also note that this function modifies the Image object in place. If</span>
+<span class="sd">        you need to use the full resolution image as well, apply this method</span>
+<span class="sd">        to a {@link #Image.copy} of the original image.</span>
+
+<span class="sd">        :param size Requested size.</span>
+<span class="sd">        :param resample Optional resampling filter.  This can be one</span>
+<span class="sd">           of NEAREST, BILINEAR, BICUBIC, or</span>
+<span class="sd">           ANTIALIAS (best quality).  If omitted, it defaults</span>
+<span class="sd">           to NEAREST (this will be changed to ANTIALIAS in a</span>
+<span class="sd">           future version).</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.transform"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">resample</span><span class="o">=</span><span class="n">NEAREST</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms this image. This method creates a new image with the given</span>
+<span class="sd">        size, and the same mode as the original, and copies data to the new</span>
+<span class="sd">        image using the given transform.</span>
+
+<span class="sd">        :param size The output size.</span>
+<span class="sd">        :param method The transformation method.  This is one of</span>
+<span class="sd">          EXTENT (cut out a rectangular subregion), AFFINE</span>
+<span class="sd">          (affine transform), PERSPECTIVE (perspective</span>
+<span class="sd">          transform), QUAD (map a quadrilateral to a</span>
+<span class="sd">          rectangle), or MESH (map a number of source quadrilaterals</span>
+<span class="sd">          in one operation).</span>
+<span class="sd">        :param data Extra data to the transformation method.</span>
+<span class="sd">        :param resample Optional resampling filter.  It can be one of</span>
+<span class="sd">           NEAREST (use nearest neighbour), BILINEAR</span>
+<span class="sd">           (linear interpolation in a 2x2 environment), or</span>
+<span class="sd">           BICUBIC (cubic spline interpolation in a 4x4</span>
+<span class="sd">           environment). If omitted, or if the image has mode</span>
+<span class="sd">           &quot;1&quot; or &quot;P&quot;, it is set to NEAREST.</span>
+<span class="sd">        :rtype: :class:Image object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Image.transpose"><a class="viewcode-back" href="../../api.html#NativeImaging.api.Image.transpose">[docs]</a>    <span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="s">&quot;Transpose image (flip or rotate in 90 degree steps)&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Chris Adams, Dan Krech, Ed Summers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

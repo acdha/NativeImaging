@@ -1,0 +1,261 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>NativeImaging.backends.wand_wrapper &mdash; Native Imaging v0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="Native Imaging v0.0.1 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li>
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+
+  <h1>Source code for NativeImaging.backends.wand_wrapper</h1><div class="highlight"><pre>
+<span class="c"># encoding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ctypes wrappers for GraphicsMagick functions with error-handling</span>
+
+<span class="sd">n.b. Heavy consultation of http://www.graphicsmagick.org/wand/magick_wand.html</span>
+<span class="sd">and the ctypes documentation is advised</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">ctypes.util</span> <span class="kn">import</span> <span class="n">find_library</span>
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">_wandlib_path</span> <span class="o">=</span> <span class="n">find_library</span><span class="p">(</span><span class="s">&quot;GraphicsMagickWand&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">_wandlib_path</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s">&quot;Unable to find GraphicsMagicWand library!&quot;</span><span class="p">)</span>
+
+<span class="n">_wandlib</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">_wandlib_path</span><span class="p">)</span>
+<span class="n">_wandlib</span><span class="o">.</span><span class="n">InitializeMagick</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">_wand_errcheck</span><span class="p">(</span><span class="n">rc</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Intended for use as a ctypes errcheck function</span>
+
+<span class="sd">    Can only be used with functions which take Wand as their first argument</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rc</span><span class="p">:</span>
+        <span class="n">err_type</span> <span class="o">=</span> <span class="n">ExceptionType</span><span class="p">()</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">MagickGetException</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">err_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">err_type</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">430</span><span class="p">:</span> <span class="c"># &quot;Unable to open file&quot;</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">WandException</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rc</span>
+
+<span class="c"># ENUM declarations:</span>
+<span class="n">FilterTypes</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s">&#39;UndefinedFilter&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s">&#39;PointFilter&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s">&#39;BoxFilter&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s">&#39;TriangleFilter&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s">&#39;HermiteFilter&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+  <span class="s">&#39;HanningFilter&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+  <span class="s">&#39;HammingFilter&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+  <span class="s">&#39;BlackmanFilter&#39;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+  <span class="s">&#39;GaussianFilter&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+  <span class="s">&#39;QuadraticFilter&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+  <span class="s">&#39;CubicFilter&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="s">&#39;CatromFilter&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+  <span class="s">&#39;MitchellFilter&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+  <span class="s">&#39;LanczosFilter&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+  <span class="s">&#39;BesselFilter&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+  <span class="s">&#39;SincFilter&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="WandException"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.wand_wrapper.WandException">[docs]</a><span class="k">class</span> <span class="nc">WandException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="MagickWand"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.wand_wrapper.MagickWand">[docs]</a><span class="k">class</span> <span class="nc">MagickWand</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">WAND_P</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">MagickWand</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="FILE"><a class="viewcode-back" href="../../../backends/graphicsmagick.html#NativeImaging.backends.wand_wrapper.FILE">[docs]</a><span class="k">class</span> <span class="nc">FILE</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">Structure</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">ExceptionType</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span> <span class="c"># TODO: Expand enum choices</span>
+<span class="n">MagickBooleanType</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_uint</span>
+
+<span class="n">FILE_P</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">FILE</span><span class="p">)</span>
+
+<span class="c"># TODO: Is there a way to load this without configuring a global library?</span>
+<span class="n">ctypes</span><span class="o">.</span><span class="n">pythonapi</span><span class="o">.</span><span class="n">PyFile_AsFile</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">py_object</span><span class="p">,</span> <span class="p">)</span>
+<span class="n">ctypes</span><span class="o">.</span><span class="n">pythonapi</span><span class="o">.</span><span class="n">PyFile_AsFile</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">FILE_P</span>
+
+<span class="n">MagickGetException</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickGetException</span>
+<span class="n">MagickGetException</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span>
+<span class="n">MagickGetException</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ExceptionType</span><span class="p">)]</span>
+
+<span class="n">NewMagickWand</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">NewMagickWand</span>
+<span class="n">NewMagickWand</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">WAND_P</span>
+<span class="n">NewMagickWand</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">CloneMagickWand</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">CloneMagickWand</span>
+<span class="n">CloneMagickWand</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">WAND_P</span>
+<span class="n">CloneMagickWand</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">]</span>
+<span class="n">CloneMagickWand</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">DestroyMagickWand</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">DestroyMagickWand</span>
+<span class="n">DestroyMagickWand</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">]</span>
+<span class="n">DestroyMagickWand</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">DestroyMagickWand</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickStripImage</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickStripImage</span>
+<span class="n">MagickStripImage</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">]</span>
+<span class="n">MagickStripImage</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickStripImage</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickReadImageBlob</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickReadImageBlob</span>
+<span class="n">MagickReadImageBlob</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickReadImageBlob</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_void_p</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_size_t</span><span class="p">]</span>
+<span class="n">MagickReadImageBlob</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickReadImageFile</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickReadImageFile</span>
+<span class="n">MagickReadImageFile</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickReadImageFile</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">FILE_P</span><span class="p">]</span>
+<span class="n">MagickReadImageFile</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickReadImage</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickReadImage</span>
+<span class="n">MagickReadImage</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickReadImage</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">]</span>
+<span class="n">MagickReadImage</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickGetImageHeight</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickGetImageHeight</span>
+<span class="n">MagickGetImageHeight</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span>
+<span class="n">MagickGetImageHeight</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">(</span><span class="n">WAND_P</span><span class="p">,</span> <span class="p">)</span>
+<span class="n">MagickGetImageHeight</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickGetImageWidth</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickGetImageWidth</span>
+<span class="n">MagickGetImageWidth</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span>
+<span class="n">MagickGetImageWidth</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">(</span><span class="n">WAND_P</span><span class="p">,</span> <span class="p">)</span>
+<span class="n">MagickGetImageWidth</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickGetImageFormat</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickGetImageFormat</span>
+<span class="n">MagickGetImageFormat</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span>
+<span class="n">MagickGetImageFormat</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">(</span><span class="n">WAND_P</span><span class="p">,</span> <span class="p">)</span>
+<span class="n">MagickGetImageFormat</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickSetImageFormat</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickSetImageFormat</span>
+<span class="n">MagickSetImageFormat</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickSetImageFormat</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">]</span>
+<span class="n">MagickSetImageFormat</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickWriteImage</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickWriteImage</span>
+<span class="n">MagickWriteImage</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickWriteImage</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_char_p</span><span class="p">]</span>
+<span class="n">MagickWriteImage</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickWriteImageBlob</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickWriteImageBlob</span>
+<span class="n">MagickWriteImageBlob</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_char</span><span class="p">)</span>
+<span class="n">MagickWriteImageBlob</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_size_t</span><span class="p">)]</span>
+<span class="n">MagickWriteImageBlob</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickWriteImageFile</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickWriteImageFile</span>
+<span class="n">MagickWriteImageFile</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickWriteImageFile</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">FILE_P</span><span class="p">]</span>
+<span class="n">MagickWriteImageFile</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickScaleImage</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickScaleImage</span>
+<span class="n">MagickScaleImage</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickScaleImage</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">]</span>
+<span class="n">MagickScaleImage</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickResizeImage</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickScaleImage</span>
+<span class="n">MagickResizeImage</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickResizeImage</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">]</span>
+<span class="n">MagickResizeImage</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+
+<span class="n">MagickCropImage</span> <span class="o">=</span> <span class="n">_wandlib</span><span class="o">.</span><span class="n">MagickCropImage</span>
+<span class="n">MagickCropImage</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">MagickBooleanType</span>
+<span class="n">MagickCropImage</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">WAND_P</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">,</span>
+                              <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_ulong</span><span class="p">]</span>
+<span class="n">MagickCropImage</span><span class="o">.</span><span class="n">errcheck</span> <span class="o">=</span> <span class="n">_wand_errcheck</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Chris Adams, Dan Krech, Ed Summers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

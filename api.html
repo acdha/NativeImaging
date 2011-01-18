@@ -1,0 +1,775 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>Common API &mdash; Native Imaging v0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Native Imaging v0.0.1 documentation" href="index.html" />
+    <link rel="next" title="AWARE Backend" href="backends/aware.html" />
+    <link rel="prev" title="Native Imaging" href="index.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="backends/aware.html" title="AWARE Backend"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Native Imaging"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+
+  <div class="section" id="module-NativeImaging.api">
+<span id="common-api"></span><h1>Common API<a class="headerlink" href="#module-NativeImaging.api" title="Permalink to this headline">¶</a></h1>
+<p>Our base &#8220;public&#8221; API, which is essentially the PIL Image class with almost
+all methods raising <tt class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></tt></p>
+<p>Backends are implemented by subclassing and actually doing something with the
+results</p>
+<dl class="class">
+<dt id="NativeImaging.api.Image">
+<em class="property">class </em><tt class="descclassname">NativeImaging.api.</tt><tt class="descname">Image</tt><a class="reference internal" href="_modules/NativeImaging/api.html#Image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all NativeImaging backends</p>
+<p>Should be compatible with PIL.Image or raise NotImplementedError()</p>
+<dl class="method">
+<dt id="NativeImaging.api.Image.convert">
+<tt class="descname">convert</tt><big>(</big><em>mode=None</em>, <em>data=None</em>, <em>dither=None</em>, <em>palette=0</em>, <em>colors=256</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.convert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.convert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert to other pixel format</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.copy">
+<tt class="descname">copy</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an exact copy of the current image which may be destructively
+modified without affecting the original. Backends may choose to
+implement Copy-On-Write for performance so callers should not expect
+resource handles or object ids to change simply by calling copy().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.crop">
+<tt class="descname">crop</tt><big>(</big><em>box=None</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.crop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.crop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a cropped version of the image</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>box</strong> &#8211; The crop rectangle, as a (left, upper, right, lower)-tuple.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">:class:Image object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.draft">
+<tt class="descname">draft</tt><big>(</big><em>mode</em>, <em>size</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.draft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.draft" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures the image file loader so it returns a version of the
+image that as closely as possible matches the given mode and
+size.  For example, you can use this method to convert a colour
+JPEG to greyscale while loading it, or to extract a 128x192
+version from a PCD file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.filter">
+<tt class="descname">filter</tt><big>(</big><em>filter</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply environment filter to image</p>
+<p>Filters this image using the given filter. For a list of available
+filters, see the <tt class="xref py py-mod docutils literal"><span class="pre">ImageFilter</span></tt> module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filter</strong> &#8211; Filter kernel.</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body">:class:Image object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.fromstring">
+<tt class="descname">fromstring</tt><big>(</big><em>data</em>, <em>decoder_name='raw'</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.fromstring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.fromstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data to image from binary string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.getbands">
+<tt class="descname">getbands</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.getbands"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.getbands" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a tuple containing the name of each band in this image.
+For example, getbands on an RGB image returns (&#8220;R&#8221;, &#8220;G&#8221;, &#8220;B&#8221;).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A tuple containing band names.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.getbbox">
+<tt class="descname">getbbox</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.getbbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.getbbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get bounding box of actual data (non-zero pixels) in image</p>
+<p>Calculates the bounding box of the non-zero regions in the
+image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The bounding box is returned as a 4-tuple defining the
+left, upper, right, and lower pixel coordinate. If the image
+is completely empty, this method returns None.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.getcolors">
+<tt class="descname">getcolors</tt><big>(</big><em>maxcolors=256</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.getcolors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.getcolors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get colors from image, up to given limit
+Returns a list of colors used in this image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>maxcolors</strong> &#8211; Maximum number of colors.  If this number is
+exceeded, this method returns None.  The default limit is
+256 colors.</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">An unsorted list of (count, pixel) values.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.getdata">
+<tt class="descname">getdata</tt><big>(</big><em>band=None</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.getdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.getdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get image data as sequence object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.getextrema">
+<tt class="descname">getextrema</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.getextrema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.getextrema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get min/max value</p>
+<p>Gets the the minimum and maximum pixel values for each band in
+the image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">For a single-band image, a 2-tuple containing the
+minimum and maximum pixel value.  For a multi-band image,
+a tuple containing one 2-tuple for each band.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.getpalette">
+<tt class="descname">getpalette</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.getpalette"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.getpalette" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get palette contents</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list of color values [r, g, b, ...], or None if the
+image has no palette.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.getpixel">
+<tt class="descname">getpixel</tt><big>(</big><em>xy</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.getpixel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.getpixel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get pixel value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>xy</strong> &#8211; The coordinate, given as (x, y).</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">The pixel value.  If the image is a multi-layer image,
+this method returns a tuple.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.getprojection">
+<tt class="descname">getprojection</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.getprojection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.getprojection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get projection to x and y axes</p>
+<p>Returns the horizontal and vertical projection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">Two sequences, indicating where there are non-zero
+pixels along the X-axis and the Y-axis, respectively.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.histogram">
+<tt class="descname">histogram</tt><big>(</big><em>mask=None</em>, <em>extrema=None</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.histogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.histogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take histogram of image</p>
+<p>Returns a histogram for the image. The histogram is returned as
+a list of pixel counts, one for each pixel value in the source
+image. If the image has more than one band, the histograms for
+all bands are concatenated (for example, the histogram for an
+&#8220;RGB&#8221; image contains 768 values).</p>
+<p>A bilevel image (mode &#8220;1&#8221;) is treated as a greyscale (&#8220;L&#8221;) image
+by this method.</p>
+<p>If a mask is provided, the method returns a histogram for those
+parts of the image where the mask image is non-zero. The mask
+image must have the same size as the image, and be either a
+bi-level image (mode &#8220;1&#8221;) or a greyscale image (&#8220;L&#8221;).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mask</strong> &#8211; An optional mask.</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A list containing pixel counts.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly load pixel data.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="NativeImaging.api.Image.open">
+<em class="property">classmethod </em><tt class="descname">open</tt><big>(</big><em>fp</em>, <em>mode='r'</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.open"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.open" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.paste">
+<tt class="descname">paste</tt><big>(</big><em>im</em>, <em>box=None</em>, <em>mask=None</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.paste"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.paste" title="Permalink to this definition">¶</a></dt>
+<dd><p>Paste other image into region</p>
+<p>Pastes another image into this image. The box argument is either
+a 2-tuple giving the upper left corner, a 4-tuple defining the
+left, upper, right, and lower pixel coordinate, or None (same as
+(0, 0)).  If a 4-tuple is given, the size of the pasted image
+must match the size of the region.</p>
+<p>If the modes don&#8217;t match, the pasted image is converted to the
+mode of this image (see the <a class="reference internal" href="#NativeImaging.api.Image.convert" title="NativeImaging.api.Image.convert"><tt class="xref py py-meth docutils literal"><span class="pre">Image.convert()</span></tt></a> method for
+details).</p>
+<p>Instead of an image, the source can be a integer or tuple
+containing pixel values.  The method then fills the region
+with the given colour.  When creating RGB images, you can
+also use colour strings as supported by the ImageColor module.</p>
+<p>If a mask is given, this method updates only the regions
+indicated by the mask.  You can use either &#8220;1&#8221;, &#8220;L&#8221; or &#8220;RGBA&#8221;
+images (in the latter case, the alpha band is used as mask).
+Where the mask is 255, the given image is copied as is.  Where
+the mask is 0, the current value is preserved.  Intermediate
+values can be used for transparency effects.</p>
+<p>Note that if you paste an &#8220;RGBA&#8221; image, the alpha band is
+ignored.  You can work around this by using the same image as
+both source image and mask.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>im</strong> &#8211; Source image or pixel value (integer or tuple).</li>
+<li><strong>box</strong> &#8211; <p>An optional 4-tuple giving the region to paste into.
+If a 2-tuple is used instead, it&#8217;s treated as the upper left
+corner.  If omitted or None, the source is pasted into the
+upper left corner.</p>
+<p>If an image is given as the second argument and there is no
+third, the box defaults to (0, 0), and the second argument
+is interpreted as a mask image.</p>
+</li>
+<li><strong>mask</strong> &#8211; An optional mask image.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">:class:Image object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.point">
+<tt class="descname">point</tt><big>(</big><em>lut</em>, <em>mode=None</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.point"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.point" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps this image through a lookup table or function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lut</strong> &#8211; A lookup table, containing 256 values per band in the
+image. A function can be used instead, it should take a single
+argument. The function is called once for each possible pixel
+value, and the resulting table is applied to all bands of the
+image.</li>
+<li><strong>mode</strong> &#8211; Output mode (default is same as input).  In the
+current version, this can only be used if the source image
+has mode &#8220;L&#8221; or &#8220;P&#8221;, and the output has mode &#8220;1&#8221;.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">:class:Image object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.putalpha">
+<tt class="descname">putalpha</tt><big>(</big><em>alpha</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.putalpha"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.putalpha" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set alpha layer
+Adds or replaces the alpha layer in this image.  If the image
+does not have an alpha layer, it&#8217;s converted to &#8220;LA&#8221; or &#8220;RGBA&#8221;.
+The new layer must be either &#8220;L&#8221; or &#8220;1&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>im</strong> &#8211; The new alpha layer.  This can either be an &#8220;L&#8221; or &#8220;1&#8221;
+image having the same size as this image, or an integer or
+other color value.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.putdata">
+<tt class="descname">putdata</tt><big>(</big><em>data</em>, <em>scale=1.0</em>, <em>offset=0.0</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.putdata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.putdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put data from a sequence object into an image</p>
+<p>Copies pixel data to this image.  This method copies data from a
+sequence object into the image, starting at the upper left
+corner (0, 0), and continuing until either the image or the
+sequence ends.  The scale and offset values are used to adjust
+the sequence values: pixel = value*scale + offset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data</strong> &#8211; A sequence object.</li>
+<li><strong>scale</strong> &#8211; An optional scale value.  The default is 1.0.</li>
+<li><strong>offset</strong> &#8211; An optional offset value.  The default is 0.0.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.putpalette">
+<tt class="descname">putpalette</tt><big>(</big><em>data</em>, <em>rawmode='RGB'</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.putpalette"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.putpalette" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put palette data into an image.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.putpixel">
+<tt class="descname">putpixel</tt><big>(</big><em>xy</em>, <em>value</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.putpixel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.putpixel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Modifies the pixel at the given position. The colour is given as a
+single numerical value for single-band images, and a tuple for
+multi-band images.</p>
+<p>Note that this method is relatively slow. For more extensive changes,
+use <a class="reference internal" href="#NativeImaging.api.Image.paste" title="NativeImaging.api.Image.paste"><tt class="xref py py-meth docutils literal"><span class="pre">Image.paste()</span></tt></a> or the <tt class="xref py py-mod docutils literal"><span class="pre">ImageDraw</span></tt> module instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>xy</strong> &#8211; The pixel coordinate, given as (x, y).</li>
+<li><strong>value</strong> &#8211; The pixel value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.quantize">
+<tt class="descname">quantize</tt><big>(</big><em>colors=256</em>, <em>method=0</em>, <em>kmeans=0</em>, <em>palette=None</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.quantize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.quantize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.resize">
+<tt class="descname">resize</tt><big>(</big><em>size</em>, <em>resample=0</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.resize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.resize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a resized copy of this image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>size</strong> (<em>tuple</em>) &#8211; The requested size in pixels, as a 2-tuple:
+(width, height).</li>
+<li><strong>filter</strong> &#8211; An optional resampling filter.  This can be
+one of NEAREST (use nearest neighbour), BILINEAR
+(linear interpolation in a 2x2 environment), BICUBIC
+(cubic spline interpolation in a 4x4 environment), or
+ANTIALIAS (a high-quality downsampling filter).</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">:class:Image object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.rotate">
+<tt class="descname">rotate</tt><big>(</big><em>angle</em>, <em>filter=0</em>, <em>expand=False</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.rotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a rotated copy of this image.  This method returns a
+copy of this image, rotated the given number of degrees counter
+clockwise around its centre.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>angle</strong> &#8211; In degrees counter clockwise.</li>
+<li><strong>filter</strong> &#8211; An optional resampling filter.  This can be
+one of NEAREST (use nearest neighbour), BILINEAR
+(linear interpolation in a 2x2 environment), or BICUBIC
+(cubic spline interpolation in a 4x4 environment).
+If omitted, or if the image has mode &#8220;1&#8221; or &#8220;P&#8221;, it is
+set NEAREST.</li>
+<li><strong>expand</strong> &#8211; Optional expansion flag.  If true, expands the output
+image to make it large enough to hold the entire rotated image.
+If false or omitted, make the output image the same size as the
+input image.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">:class:Image object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.save">
+<tt class="descname">save</tt><big>(</big><em>fp</em>, <em>format=None</em>, <em>**params</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves this image under the given filename.  If no format is
+specified, the format to use is determined from the filename
+extension, if possible.</p>
+<p>Keyword options can be used to provide additional instructions
+to the writer. If a writer doesn&#8217;t recognise an option, it is
+silently ignored. The available options are described later in
+this handbook.</p>
+<p>You can use a file object instead of a filename. In this case,
+you must always specify the format. The file object must
+implement the seek, tell, and write
+methods, and be opened in binary mode.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file</strong> &#8211; File name or file object.</li>
+<li><strong>format</strong> &#8211; Optional format override.  If omitted, the
+format to use is determined from the filename extension.
+If a file object was used instead of a filename, this
+parameter should always be used.</li>
+<li><strong>params</strong> &#8211; Extra parameters to the image writer.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">None</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first"><tt class="xref py py-exc docutils literal"><span class="pre">KeyError</span></tt> If the output format could not be determined
+from the file name.  Use the format option to solve this.</p>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Raises :</th><td class="field-body"><p class="first last"><tt class="xref py py-exc docutils literal"><span class="pre">IOError</span></tt> If the file could not be written. The file may
+have been created, and may contain partial data.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.seek">
+<tt class="descname">seek</tt><big>(</big><em>frame</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.seek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.seek" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seeks to the given frame in this sequence file. If you seek beyond the
+end of the sequence, the method raises an EOFError exception. When a
+sequence file is opened, the library automatically seeks to frame 0.</p>
+<p>Note that in the current version of the library, most sequence formats
+only allows you to seek to the next frame.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>frame</strong> &#8211; Frame number, starting at 0.</td>
+</tr>
+<tr class="field"><th class="field-name">Exception :</th><td class="field-body"><tt class="xref py py-exc docutils literal"><span class="pre">EOFError</span></tt> If the call attempts to seek beyond the
+end of the sequence.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a class="reference internal" href="#NativeImaging.api.Image.tell" title="NativeImaging.api.Image.tell"><tt class="xref py py-meth docutils literal"><span class="pre">Image.tell()</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.show">
+<tt class="descname">show</tt><big>(</big><em>title=None</em>, <em>command=None</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displays this image. This method is mainly intended for debugging
+purposes.</p>
+<p>On Unix platforms, this method saves the image to a temporary PPM
+file, and calls the xv utility.</p>
+<p>On Windows, it saves the image to a temporary BMP file, and uses the
+standard BMP display utility to show it (usually Paint).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>title</strong> (<em>None or string</em>) &#8211; Optional title to use for the image window,
+where possible.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.split">
+<tt class="descname">split</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.split" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split this image into individual bands. This method returns a tuple of
+individual image bands from an image. For example, splitting an &#8220;RGB&#8221;
+image creates three new images each containing a copy of one of the
+original bands (red, green, blue).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">A tuple containing bands.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.tell">
+<tt class="descname">tell</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.tell"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.tell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current frame number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Returns:</th><td class="field-body">Frame number, starting with 0.</td>
+</tr>
+</tbody>
+</table>
+<p>See <a class="reference internal" href="#NativeImaging.api.Image.seek" title="NativeImaging.api.Image.seek"><tt class="xref py py-meth docutils literal"><span class="pre">Image.seek()</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.thumbnail">
+<tt class="descname">thumbnail</tt><big>(</big><em>size</em>, <em>resample=0</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.thumbnail"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.thumbnail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create thumbnail representation (modifies image in place)</p>
+<p>Make this image into a thumbnail. This method modifies the image to
+contain a thumbnail version of itself, no larger than the given size.
+This method calculates an appropriate thumbnail size to preserve the
+aspect of the image, calls the <a class="reference internal" href="#NativeImaging.api.Image.draft" title="NativeImaging.api.Image.draft"><tt class="xref py py-meth docutils literal"><span class="pre">Image.draft()</span></tt></a> method to
+configure the file reader (where applicable), and finally resizes the
+image.</p>
+<p>Note that the bilinear and bicubic filters in the current version of
+PIL are not well-suited for thumbnail generation. You should use
+ANTIALIAS unless speed is much more important than quality.</p>
+<p>Also note that this function modifies the Image object in place. If
+you need to use the full resolution image as well, apply this method
+to a <a class="reference internal" href="#NativeImaging.api.Image.copy" title="NativeImaging.api.Image.copy"><tt class="xref py py-meth docutils literal"><span class="pre">Image.copy()</span></tt></a> of the original image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>size</strong> &#8211; Requested size.</li>
+<li><strong>resample</strong> &#8211; Optional resampling filter. This can be one of of
+NEAREST, BILINEAR, BICUBIC, or ANTIALIAS (best quality). If omitted,
+it defaults to NEAREST (this will be changed to ANTIALIAS in a future
+version).</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.tobitmap">
+<tt class="descname">tobitmap</tt><big>(</big><em>name='image'</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.tobitmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.tobitmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return image as an XBM bitmap</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.tostring">
+<tt class="descname">tostring</tt><big>(</big><em>encoder_name='raw'</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.tostring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.tostring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.transform">
+<tt class="descname">transform</tt><big>(</big><em>size</em>, <em>method</em>, <em>data=None</em>, <em>resample=0</em>, <em>fill=1</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.transform"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms this image. This method creates a new image with the given
+size, and the same mode as the original, and copies data to the new
+image using the given transform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>size</strong> &#8211; The output size.</li>
+<li><strong>method</strong> &#8211; The transformation method.  This is one of
+EXTENT (cut out a rectangular subregion), AFFINE
+(affine transform), PERSPECTIVE (perspective
+transform), QUAD (map a quadrilateral to a
+rectangle), or MESH (map a number of source quadrilaterals
+in one operation).</li>
+<li><strong>data</strong> &#8211; Extra data to the transformation method.</li>
+<li><strong>resample</strong> &#8211; Optional resampling filter.  It can be one of
+NEAREST (use nearest neighbour), BILINEAR
+(linear interpolation in a 2x2 environment), or
+BICUBIC (cubic spline interpolation in a 4x4
+environment). If omitted, or if the image has mode
+&#8220;1&#8221; or &#8220;P&#8221;, it is set to NEAREST.</li>
+</ul>
+</td>
+</tr>
+<tr class="field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">:class:Image object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.transpose">
+<tt class="descname">transpose</tt><big>(</big><em>method</em><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.transpose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.transpose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transpose image (flip or rotate in 90 degree steps)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="NativeImaging.api.Image.verify">
+<tt class="descname">verify</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/NativeImaging/api.html#Image.verify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#NativeImaging.api.Image.verify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify file contents.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Native Imaging</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="backends/aware.html"
+                        title="next chapter">AWARE Backend</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="backends/aware.html" title="AWARE Backend"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Native Imaging"
+             >previous</a> |</li>
+        <li><a href="index.html">Native Imaging v0.0.1 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Chris Adams, Dan Krech, Ed Summers.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
