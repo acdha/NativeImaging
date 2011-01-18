@@ -28,12 +28,16 @@ class GraphicsMagickImage(Image):
     def open(cls, fp, mode="rb"):
         i = cls()
 
-        if isinstance(fp, file):
+        if isinstance(fp, basestring):
+            wand.MagickReadImage(i._wand, fp)
+        elif isinstance(fp, file):
             c_file = ctypes.pythonapi.PyFile_AsFile(fp)
             wand.MagickReadImageFile(i._wand, c_file)
-        else:
+        elif hasattr(fp, "read"):
             b = ctypes.create_string_buffer(fp.read())
             wand.MagickReadImageBlob(i._wand, b, ctypes.sizeof(b))
+        else:
+            raise ValueError("Cannot open %r object" % fp)
 
         return i
 
@@ -70,10 +74,14 @@ class GraphicsMagickImage(Image):
         wand.MagickSetImageFormat(self._wand, format)
         assert format == wand.MagickGetImageFormat(self._wand)
 
-        if isinstance(fp, file):
+        if isinstance(fp, basestring):
+            wand.MagickWriteImage(self._wand, fp)
+        elif isinstance(fp, file):
             c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-            wand.MagickWriteImageFile(self._wand, c_file)
-        else:
+            wand.MagickReadImageFile(self._wand, c_file)
+        elif hasattr(fp, "write"):
             length = ctypes.c_size_t()
             data = wand.MagickWriteImageBlob(self._wand, ctypes.pointer(length))
             fp.write(data[0:length.value])
+        else:
+            raise ValueError("Don't know how to write to a %r" % fp)
