@@ -1,20 +1,19 @@
-.. Native Imaging documentation master file, created by
-   sphinx-quickstart on Tue Jan 18 16:09:20 2011.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. include:: ../README.rst
 
-Welcome to Native Imaging's documentation!
-==========================================
-
-Contents:
+Table of Contents
+=================
 
 .. toctree::
    :maxdepth: 2
+   :glob:
 
-Indices and tables
-==================
+   *
+   backends/*
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+Development
+-----------
 
+You'll want to install nose to run the tests and Sphinx to build the
+documentation. For convenience, a requirements-devel.pip file has been provided
+and you may simply use "pip install -r requirements-devel.pip" to keep your
+dependencies current.
