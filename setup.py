@@ -1,6 +1,8 @@
 from setuptools import setup
 
 setup(
+    author='Chris Adams',
+    author_email='chris@improbable.org',
     name='NativeImaging',
     version='0.0.1',
     url='http://acdha.github.com/NativeImaging/',
