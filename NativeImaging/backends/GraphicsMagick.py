@@ -3,11 +3,14 @@
 An Image-compatible backend using GraphicsMagick via ctypes
 """
 
+from copy import deepcopy
+
 import ctypes
 
 from NativeImaging.api import Image
 
 import wand_wrapper as wand
+
 
 class GraphicsMagickImage(Image):
     _wand = None
@@ -16,8 +19,11 @@ class GraphicsMagickImage(Image):
     ANTIALIAS = wand.FilterTypes['LanczosFilter']
     CUBIC = BICUBIC = wand.FilterTypes['CubicFilter']
 
-    def __init__(self):
-        self._wand = wand.NewMagickWand()
+    def __init__(self, magick_wand=None):
+        if magick_wand is None:
+            self._wand = wand.NewMagickWand()
+        else:
+            self._wand = magick_wand
         assert self._wand, "NewMagickWand() failed???"
 
     def __del__(self):
@@ -41,6 +47,22 @@ class GraphicsMagickImage(Image):
 
         return i
 
+    def copy(self):
+        return deepcopy(self)
+
+    def __deepcopy__(self, memo):
+        # We have a little bit of song-and-dance here because we need to avoid
+        # deepcopy() attempting to copy _wand, which would be pointless since
+        # we're about to replace it anyway:
+        new_wand = wand.CloneMagickWand(self._wand)
+        new_image = GraphicsMagickImage(magick_wand=new_wand)
+
+        for k in self.__dict__:
+            if k == "_wand": continue
+            setattr(new_image, k, deepcopy(getattr(self, k), memo))
+
+        return new_image
+
     @property
     def size(self):
         width = wand.MagickGetImageWidth(self._wand)
@@ -48,27 +70,42 @@ class GraphicsMagickImage(Image):
         return (width, height)
 
     def thumbnail(self, size, resample=ANTIALIAS):
-        x, y = self.size
+        width, height = self.size
 
-        if x > size[0]: y = max(y * size[0] / x, 1); x = size[0]
-        if y > size[1]: x = max(x * size[1] / y, 1); y = size[1]
+        if width > size[0]:
+            height = max(height * size[0] / width, 1)
+            width = size[0]
 
-        new_size = (x, y)
+        if height > size[1]:
+            width = max(width * size[1] / height, 1)
+            height = size[1]
 
         wand.MagickStripImage(self._wand)
-        return self.resize(new_size, resample=resample)
+        wand.MagickResizeImage(self._wand, width, height, resample, 1)
 
     def resize(self, size, resample=ANTIALIAS):
         width, height = int(size[0]), int(size[1])
-        wand.MagickResizeImage(self._wand, width, height, resample, 1)
-        return self  # TODO: return copy
+
+        im = self.copy()
+
+        wand.MagickResizeImage(im._wand, width, height, resample, 1)
+
+        return im
 
     def crop(self, box):
+        # TODO: Investigate whether this can be further optimized by using the
+        # lower-level GraphicsMagick CropImage function directly since that is
+        # non-destructive:
+        # http://www.graphicsmagick.org/api/transform.html#cropimage
         x0, y0, x1, y1 = box
-        width = x1 - x0;
-        height = y1 - y1;
-        wand.MagickCropImage(self._wand, x0, y0, width, height)
-        return self  # TODO: return copy?
+        width = x1 - x0
+        height = y1 - y1
+
+        im = self.copy()
+
+        wand.MagickCropImage(im._wand, x0, y0, width, height)
+
+        return im
 
     def save(self,  fp, format="JPEG", **kwargs):
         wand.MagickSetImageFormat(self._wand, format)

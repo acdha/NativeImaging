@@ -78,6 +78,11 @@ NewMagickWand = _wandlib.NewMagickWand
 NewMagickWand.restype = WAND_P
 NewMagickWand.errcheck = _wand_errcheck
 
+CloneMagickWand = _wandlib.CloneMagickWand
+CloneMagickWand.restype = WAND_P
+CloneMagickWand.argtypes = [WAND_P]
+CloneMagickWand.errcheck = _wand_errcheck
+
 DestroyMagickWand = _wandlib.DestroyMagickWand
 DestroyMagickWand.argtypes = [WAND_P]
 DestroyMagickWand.restype = MagickBooleanType

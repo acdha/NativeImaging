@@ -68,6 +68,15 @@ class Image(object):
             id(self)
             )
 
+    def copy(self):
+        """
+        Returns an exact copy of the current image which may be destructively
+        modified without affecting the original. Backends may choose to
+        implement Copy-On-Write for performance so callers should not expect
+        resource handles or object ids to change simply by calling copy().
+        """
+        raise NotImplementedError()
+
     def tostring(self, encoder_name="raw", *args):
         raise NotImplementedError()
 
@@ -93,10 +102,6 @@ class Image(object):
         raise NotImplementedError()
 
     def quantize(self, colors=256, method=0, kmeans=0, palette=None):
-        raise NotImplementedError()
-
-    def copy(self):
-        "Copy raster data"
         raise NotImplementedError()
 
     def crop(self, box=None):
