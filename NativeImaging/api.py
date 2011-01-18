@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 """
 This file documents our base "public" API, as defined by using the PIL Image
 class with almost all methods stubbed out to return NotImplementedError()
@@ -5,6 +7,7 @@ class with almost all methods stubbed out to return NotImplementedError()
 Backends are implemented by subclassing and actually doing something with the
 results
 """
+
 # Constants defined to match PIL:
 
 # transpose
@@ -44,6 +47,7 @@ NORMAL = 0
 SEQUENCE = 1
 CONTAINER = 2
 
+
 class Image(object):
     format = None
     format_description = None
@@ -62,11 +66,8 @@ class Image(object):
         raise NotImplementedError()
 
     def __repr__(self):
-        return "" % (
-            self.__class__.__module__, self.__class__.__name__,
-            self.mode, self.size[0], self.size[1],
-            id(self)
-            )
+        return "" % (self.__class__.__module__, self.__class__.__name__,
+                        self.mode, self.size[0], self.size[1], id(self))
 
     def copy(self):
         """
@@ -374,144 +375,135 @@ class Image(object):
 
         raise NotImplementedError()
 
-    ##
-    # Returns a rotated copy of this image.  This method returns a
-    # copy of this image, rotated the given number of degrees counter
-    # clockwise around its centre.
-    #
-    # @def rotate(angle, filter=NEAREST)
-    # @param angle In degrees counter clockwise.
-    # @param filter An optional resampling filter.  This can be
-    #    one of NEAREST (use nearest neighbour), BILINEAR
-    #    (linear interpolation in a 2x2 environment), or BICUBIC
-    #    (cubic spline interpolation in a 4x4 environment).
-    #    If omitted, or if the image has mode "1" or "P", it is
-    #    set NEAREST.
-    # @param expand Optional expansion flag.  If true, expands the output
-    #    image to make it large enough to hold the entire rotated image.
-    #    If false or omitted, make the output image the same size as the
-    #    input image.
-    # @return An Image object.
+    def rotate(self, angle, filter=NEAREST, expand=False):
+        """
+        Returns a rotated copy of this image.  This method returns a
+        copy of this image, rotated the given number of degrees counter
+        clockwise around its centre.
 
-    def rotate(self, angle, resample=NEAREST, expand=0):
-        "Rotate image.  Angle given as degrees counter-clockwise."
+        @def rotate(angle, filter=NEAREST)
+        @param angle In degrees counter clockwise.
+        @param filter An optional resampling filter.  This can be
+           one of NEAREST (use nearest neighbour), BILINEAR
+           (linear interpolation in a 2x2 environment), or BICUBIC
+           (cubic spline interpolation in a 4x4 environment).
+           If omitted, or if the image has mode "1" or "P", it is
+           set NEAREST.
+        @param expand Optional expansion flag.  If true, expands the output
+           image to make it large enough to hold the entire rotated image.
+           If false or omitted, make the output image the same size as the
+           input image.
+        @return An Image object.
+        """
 
         raise NotImplementedError()
-
-    ##
-    # Saves this image under the given filename.  If no format is
-    # specified, the format to use is determined from the filename
-    # extension, if possible.
-    #
-    # Keyword options can be used to provide additional instructions
-    # to the writer. If a writer doesn't recognise an option, it is
-    # silently ignored. The available options are described later in
-    # this handbook.
-    #
-    # You can use a file object instead of a filename. In this case,
-    # you must always specify the format. The file object must
-    # implement the seek, tell, and write
-    # methods, and be opened in binary mode.
-    #
-    # @def save(file, format=None, **options)
-    # @param file File name or file object.
-    # @param format Optional format override.  If omitted, the
-    #    format to use is determined from the filename extension.
-    #    If a file object was used instead of a filename, this
-    #    parameter should always be used.
-    # @param **options Extra parameters to the image writer.
-    # @return None
-    # @exception KeyError If the output format could not be determined
-    #    from the file name.  Use the format option to solve this.
-    # @exception IOError If the file could not be written.  The file
-    #    may have been created, and may contain partial data.
 
     def save(self, fp, format=None, **params):
-        "Save image to file or stream"
+        """
+        Saves this image under the given filename.  If no format is
+        specified, the format to use is determined from the filename
+        extension, if possible.
+
+        Keyword options can be used to provide additional instructions
+        to the writer. If a writer doesn't recognise an option, it is
+        silently ignored. The available options are described later in
+        this handbook.
+
+        You can use a file object instead of a filename. In this case,
+        you must always specify the format. The file object must
+        implement the seek, tell, and write
+        methods, and be opened in binary mode.
+
+        @def save(file, format=None, **options)
+        @param file File name or file object.
+        @param format Optional format override.  If omitted, the
+           format to use is determined from the filename extension.
+           If a file object was used instead of a filename, this
+           parameter should always be used.
+        @param **options Extra parameters to the image writer.
+        @return None
+        @exception KeyError If the output format could not be determined
+           from the file name.  Use the format option to solve this.
+        @exception IOError If the file could not be written.  The file
+           may have been created, and may contain partial data.
+        """
 
         raise NotImplementedError()
-
-    ##
-    # Seeks to the given frame in this sequence file. If you seek
-    # beyond the end of the sequence, the method raises an
-    # EOFError exception. When a sequence file is opened, the
-    # library automatically seeks to frame 0.
-    #
-    # Note that in the current version of the library, most sequence
-    # formats only allows you to seek to the next frame.
-    #
-    # @param frame Frame number, starting at 0.
-    # @exception EOFError If the call attempts to seek beyond the end
-    #     of the sequence.
-    # @see #Image.tell
 
     def seek(self, frame):
-        "Seek to given frame in sequence file"
+        """
+        Seeks to the given frame in this sequence file. If you seek
+        beyond the end of the sequence, the method raises an
+        EOFError exception. When a sequence file is opened, the
+        library automatically seeks to frame 0.
+
+        Note that in the current version of the library, most sequence
+        formats only allows you to seek to the next frame.
+
+        @param frame Frame number, starting at 0.
+        @exception EOFError If the call attempts to seek beyond the end
+            of the sequence.
+        @see #Image.tell
+        """
 
         raise NotImplementedError()
-
-    ##
-    # Displays this image. This method is mainly intended for
-    # debugging purposes.
-    #
-    # On Unix platforms, this method saves the image to a temporary
-    # PPM file, and calls the xv utility.
-    #
-    # On Windows, it saves the image to a temporary BMP file, and uses
-    # the standard BMP display utility to show it (usually Paint).
-    #
-    # @def show(title=None)
-    # @param title Optional title to use for the image window,
-    #    where possible.
 
     def show(self, title=None, command=None):
-        "Display image (for debug purposes only)"
+        """
+        Displays this image. This method is mainly intended for debugging
+        purposes.
+
+        On Unix platforms, this method saves the image to a temporary PPM
+        file, and calls the xv utility.
+
+        On Windows, it saves the image to a temporary BMP file, and uses the
+        standard BMP display utility to show it (usually Paint).
+
+        @def show(title=None)
+        @param title Optional title to use for the image window,
+           where possible.
+        """
 
         raise NotImplementedError()
-
-    ##
-    # Split this image into individual bands. This method returns a
-    # tuple of individual image bands from an image. For example,
-    # splitting an "RGB" image creates three new images each
-    # containing a copy of one of the original bands (red, green,
-    # blue).
-    #
-    # @return A tuple containing bands.
 
     def split(self):
-        "Split image into bands"
+        """
+        Split this image into individual bands. This method returns a tuple of
+        individual image bands from an image. For example, splitting an "RGB"
+        image creates three new images each containing a copy of one of the
+        original bands (red, green, blue).
+
+        @return A tuple containing bands.
+        """
 
         raise NotImplementedError()
 
-    ##
-    # Returns the current frame number.
-    #
-    # @return Frame number, starting with 0.
-    # @see #Image.seek
-
     def tell(self):
-        "Return current frame number"
+        """Returns the current frame number.
+
+        @return Frame number, starting with 0.
+        @see #Image.seek
+        """
 
         raise NotImplementedError()
 
     def thumbnail(self, size, resample=NEAREST):
         """Create thumbnail representation (modifies image in place)
 
-        Make this image into a thumbnail.  This method modifies the
-        image to contain a thumbnail version of itself, no larger than
-        the given size.  This method calculates an appropriate thumbnail
-        size to preserve the aspect of the image, calls the {@link
-        #Image.draft} method to configure the file reader (where
-        applicable), and finally resizes the image.
+        Make this image into a thumbnail. This method modifies the image to
+        contain a thumbnail version of itself, no larger than the given size.
+        This method calculates an appropriate thumbnail size to preserve the
+        aspect of the image, calls the {@link #Image.draft} method to
+        configure the file reader (where applicable), and finally resizes the
+        image.
 
-        Note that the bilinear and bicubic filters in the current
-        version of PIL are not well-suited for thumbnail generation.
-        You should use ANTIALIAS unless speed is much more
-        important than quality.
+         Note that the bilinear and bicubic filters in the current version of
+        PIL are not well-suited for thumbnail generation. You should use
+        ANTIALIAS unless speed is much more important than quality.
 
-        Also note that this function modifies the Image object in place.
-        If you need to use the full resolution image as well, apply this
-        method to a {@link #Image.copy} of the original image.
+         Also note that this function modifies the Image object in place. If
+        you need to use the full resolution image as well, apply this method
+        to a {@link #Image.copy} of the original image.
 
         @param size Requested size.
         @param resample Optional resampling filter.  This can be one
@@ -524,38 +516,31 @@ class Image(object):
 
         raise NotImplementedError()
 
-    ##
-    # Transforms this image.  This method creates a new image with the
-    # given size, and the same mode as the original, and copies data
-    # to the new image using the given transform.
-    #
-    # @def transform(size, method, data, resample=NEAREST)
-    # @param size The output size.
-    # @param method The transformation method.  This is one of
-    #   EXTENT (cut out a rectangular subregion), AFFINE
-    #   (affine transform), PERSPECTIVE (perspective
-    #   transform), QUAD (map a quadrilateral to a
-    #   rectangle), or MESH (map a number of source quadrilaterals
-    #   in one operation).
-    # @param data Extra data to the transformation method.
-    # @param resample Optional resampling filter.  It can be one of
-    #    NEAREST (use nearest neighbour), BILINEAR
-    #    (linear interpolation in a 2x2 environment), or
-    #    BICUBIC (cubic spline interpolation in a 4x4
-    #    environment). If omitted, or if the image has mode
-    #    "1" or "P", it is set to NEAREST.
-    # @return An Image object.
-
     def transform(self, size, method, data=None, resample=NEAREST, fill=1):
-        "Transform image"
+        """
+        Transforms this image. This method creates a new image with the given
+        size, and the same mode as the original, and copies data to the new
+        image using the given transform.
+
+        @def transform(size, method, data, resample=NEAREST)
+        @param size The output size.
+        @param method The transformation method.  This is one of
+          EXTENT (cut out a rectangular subregion), AFFINE
+          (affine transform), PERSPECTIVE (perspective
+          transform), QUAD (map a quadrilateral to a
+          rectangle), or MESH (map a number of source quadrilaterals
+          in one operation).
+        @param data Extra data to the transformation method.
+        @param resample Optional resampling filter.  It can be one of
+           NEAREST (use nearest neighbour), BILINEAR
+           (linear interpolation in a 2x2 environment), or
+           BICUBIC (cubic spline interpolation in a 4x4
+           environment). If omitted, or if the image has mode
+           "1" or "P", it is set to NEAREST.
+        @return An Image object.
+        """
 
         raise NotImplementedError()
-
-    ##
-    # Returns a flipped or rotated copy of this image.
-    #
-    # @param method One of FLIP_LEFT_RIGHT, FLIP_TOP_BOTTOM,
-    # ROTATE_90, ROTATE_180, or ROTATE_270.
 
     def transpose(self, method):
         "Transpose image (flip or rotate in 90 degree steps)"
