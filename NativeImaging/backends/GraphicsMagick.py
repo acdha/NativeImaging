@@ -116,7 +116,7 @@ class GraphicsMagickImage(Image):
             wand.MagickWriteImage(self._wand, fp)
         elif isinstance(fp, file):
             c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-            wand.MagickReadImageFile(self._wand, c_file)
+            wand.MagickWriteImageFile(self._wand, c_file)
         elif hasattr(fp, "write"):
             length = ctypes.c_size_t()
             data = wand.MagickWriteImageBlob(self._wand,
