@@ -1,6 +1,12 @@
-import sys
-import ctypes
+"""
+An Image-compatible backend using Aware via ctypes
+"""
+
 from ctypes.util import find_library
+import ctypes
+
+from PIL import Image as PILImage
+from NativeImaging.api import Image
 
 _path = find_library("awj2k")
 
@@ -9,14 +15,17 @@ if not _path:
 
 _lib = ctypes.CDLL(_path)
 
+
 def _aware_errcheck(rc, func, args):
     if rc:
         raise AwareException("Error: '%s' returned '%d'" % (func.__name__, rc))
     else:
         return rc
 
+
 class AwareException(Exception):
     pass
+
 
 class J2KObject(ctypes.Structure):
     pass
@@ -94,12 +103,14 @@ aw_j2k_set_input_j2k_resolution_level.argtypes = [ctypes.c_void_p,
 aw_j2k_set_input_j2k_resolution_level.errcheck = _aware_errcheck
 
 
-MAX_PROGRESSION_LEVEL = 6;
-FULL_XFORM_FLAG = 0;
+MAX_PROGRESSION_LEVEL = 6
+FULL_XFORM_FLAG = 0
+
 
 def scaled_dimension(progression_level, dimension):
     scale_factor = 2<<(progression_level-1)
     return dimension / float(scale_factor)
+
 
 def desired_progression_level(x1, x2, y1, y2, width, height):
     level = MAX_PROGRESSION_LEVEL
@@ -108,18 +119,6 @@ def desired_progression_level(x1, x2, y1, y2, width, height):
             height > scaled_dimension(level, y2 - y1):
         level -= 1
     return level
-
-
-
-"""
-An Image-compatible backend using Aware via ctypes
-"""
-
-import ctypes
-import math
-
-from PIL import Image as PILImage
-from NativeImaging.api import Image
 
 
 class AwareImage(Image):
@@ -160,14 +159,18 @@ class AwareImage(Image):
                                     ctypes.byref(cols),
                                     ctypes.byref(rows),
                                     ctypes.byref(bpp),
-                                    ctypes.byref(nChannels));
+                                    ctypes.byref(nChannels))
         return (cols.value, rows.value)
 
     def thumbnail(self, size, resample=ANTIALIAS):
         x, y = self.size
 
-        if x > size[0]: y = max(y * size[0] / x, 1); x = size[0]
-        if y > size[1]: x = max(x * size[1] / y, 1); y = size[1]
+        if x > size[0]:
+            y = max(y * size[0] / x, 1)
+            x = size[0]
+        if y > size[1]:
+            x = max(x * size[1] / y, 1)
+            y = size[1]
 
         new_size = (x, y)
         return self.resize(new_size, resample=resample)
@@ -175,16 +178,15 @@ class AwareImage(Image):
     def resize(self, size, resample=ANTIALIAS):
         width, height = int(size[0]), int(size[1])
         self.__resize = (width, height)
-        aw_j2k_set_output_com_image_size(
-            self._j2k_object_p, height, width,
-            AW_J2K_PRESERVE_ASPECT_RATIO_NO_PAD);
+        aw_j2k_set_output_com_image_size(self._j2k_object_p, height, width,
+                                            AW_J2K_PRESERVE_ASPECT_RATIO_NO_PAD)
         # TODO: remove preserve aspect ratio out into chronam code.
         return self.copy()
 
     def crop(self, box):
         x1, y1, x2, y2 = box
         self.__crop = box
-        aw_j2k_set_input_j2k_region_level(self._j2k_object_p, x1, y1, x2, y2);
+        aw_j2k_set_input_j2k_region_level(self._j2k_object_p, x1, y1, x2, y2)
         return self
 
     def copy(self):
@@ -194,7 +196,7 @@ class AwareImage(Image):
             level = desired_progression_level(x1, x2, y1, y2, width, height)
             aw_j2k_set_input_j2k_resolution_level(self._j2k_object_p,
                                                   level,
-                                                  FULL_XFORM_FLAG);
+                                                  FULL_XFORM_FLAG)
 
         data_p = ctypes.pointer(ctypes.POINTER(ctypes.c_char)())
         data_length = ctypes.c_size_t()
@@ -218,8 +220,7 @@ class AwareImage(Image):
         aw_j2k_free(self._j2k_object_p, data_p.contents)
         return image
 
-
-    def save(self,  fp, format="JPEG", **kwargs):
+    def save(self, fp, format="JPEG", **kwargs):
         aware.MagickSetImageFormat(self._j2k_object, format)
         assert format == aware.MagickGetImageFormat(self._j2k_object)
 
@@ -231,21 +232,22 @@ class AwareImage(Image):
             data = aware.MagickWriteImageBlob(self._j2k_object, ctypes.pointer(length))
             fp.write(data[0:length.value])
 
-# from urllib2 import urlopen
+if __name__ == "__main__":
+    from urllib2 import urlopen
 
-# JP2_URL = 'http://chroniclingamerica.loc.gov/data/hihouml/batch_hihouml_cardinal_ver01/data/sn83025121/00211108897/1882020101/0015.jp2'
+    JP2_URL = 'http://chroniclingamerica.loc.gov/data/hihouml/batch_hihouml_cardinal_ver01/data/sn83025121/00211108897/1882020101/0015.jp2'
 
-# fp = urlopen(JP2_URL)
+    fp = urlopen(JP2_URL)
 
-# #from NativeImaging.backends.GraphicsMagick import GraphicsMagickImage as Image
-# #i = Image.open(fp)
-# i = AwareImage.open(fp)
+    #from NativeImaging.backends.GraphicsMagick import GraphicsMagickImage as Image
+    #i = Image.open(fp)
+    i = AwareImage.open(fp)
 
-# print "orig size:", i.size
-# #i.resize((i.size[0]/2, i.size[1]/2))
-# im = i.crop((1000, 1000, 2000, 2000))
-# im = i.resize((200, 200))
-# print "resized to:", im.size
-# im.save(open("/tmp/foo.jpeg", "wb"), format="JPEG")
+    print "orig size:", i.size
+    #i.resize((i.size[0]/2, i.size[1]/2))
+    im = i.crop((1000, 1000, 2000, 2000))
+    im = i.resize((200, 200))
+    print "resized to:", im.size
+    im.save(open("/tmp/foo.jpeg", "wb"), format="JPEG")
 
 
