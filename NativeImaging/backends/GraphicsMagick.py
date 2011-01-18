@@ -43,7 +43,7 @@ class GraphicsMagickImage(Image):
             b = ctypes.create_string_buffer(fp.read())
             wand.MagickReadImageBlob(i._wand, b, ctypes.sizeof(b))
         else:
-            raise ValueError("Cannot open %r object" % fp)
+            raise IOError("Cannot open %r object" % fp)
 
         return i
 

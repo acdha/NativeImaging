@@ -26,7 +26,11 @@ def _wand_errcheck(rc, func, args):
     if not rc:
         err_type = ExceptionType()
         description = MagickGetException(args[0], err_type)
-        raise WandException(description)
+
+        if err_type.value == 430: # "Unable to open file"
+            raise IOError(description)
+        else:
+            raise WandException(description)
     else:
         return rc
 
@@ -117,7 +121,6 @@ MagickGetImageWidth = _wandlib.MagickGetImageWidth
 MagickGetImageWidth.restype = ctypes.c_ulong
 MagickGetImageWidth.argtypes = (WAND_P,)
 MagickGetImageWidth.errcheck = _wand_errcheck
-
 
 MagickGetImageFormat = _wandlib.MagickGetImageFormat
 MagickGetImageFormat.restype = ctypes.c_char_p
