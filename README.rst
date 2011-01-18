@@ -20,3 +20,11 @@ resizing it and saving the result. Testing reveals mixed results, beating PIL
 when producing thumbnails from large TIFFs and underperforming when
 thumbnailing equivalent JPEGs, both by about 2:1. Further profiling is
 warranted.
+
+Development
+-----------
+
+You'll want to install nose to run the tests and Sphinx to build the
+documentation. For convenience, a requirements-devel.pip file has been provided
+and you may simply use "pip install -r requirements-devel.pip" to keep your
+dependencies current.
