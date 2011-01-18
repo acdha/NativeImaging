@@ -94,7 +94,7 @@ aw_j2k_set_input_j2k_resolution_level.argtypes = [ctypes.c_void_p,
 aw_j2k_set_input_j2k_resolution_level.errcheck = _aware_errcheck
 
 
-MAX_PROGRESSION_LEVEL = 6;   
+MAX_PROGRESSION_LEVEL = 6;
 FULL_XFORM_FLAG = 0;
 
 def scaled_dimension(progression_level, dimension):
@@ -108,7 +108,7 @@ def desired_progression_level(x1, x2, y1, y2, width, height):
             height > scaled_dimension(level, y2 - y1):
         level -= 1
     return level
-    
+
 
 
 """
@@ -131,7 +131,7 @@ class AwareImage(Image):
         self.__crop = None
         self.__resize = None
         self._j2k_object_p = ctypes.c_void_p()
-        #print "creating j2k object:", 
+        #print "creating j2k object:",
         #print "p1:", self._j2k_object_p.value
         aw_j2k_create(ctypes.byref(self._j2k_object_p))
         assert self._j2k_object_p.value, "failed to create j2k_object"
@@ -160,7 +160,7 @@ class AwareImage(Image):
                                     ctypes.byref(cols),
                                     ctypes.byref(rows),
                                     ctypes.byref(bpp),
-                                    ctypes.byref(nChannels)); 
+                                    ctypes.byref(nChannels));
         return (cols.value, rows.value)
 
     def thumbnail(self, size, resample=ANTIALIAS):
@@ -177,7 +177,7 @@ class AwareImage(Image):
         self.__resize = (width, height)
         aw_j2k_set_output_com_image_size(
             self._j2k_object_p, height, width,
-            AW_J2K_PRESERVE_ASPECT_RATIO_NO_PAD);  
+            AW_J2K_PRESERVE_ASPECT_RATIO_NO_PAD);
         # TODO: remove preserve aspect ratio out into chronam code.
         return self.copy()
 
@@ -192,7 +192,7 @@ class AwareImage(Image):
             x1, y1, x2, y2 = self.__crop
             width, height = self.__resize
             level = desired_progression_level(x1, x2, y1, y2, width, height)
-            aw_j2k_set_input_j2k_resolution_level(self._j2k_object_p, 
+            aw_j2k_set_input_j2k_resolution_level(self._j2k_object_p,
                                                   level,
                                                   FULL_XFORM_FLAG);
 
@@ -217,7 +217,7 @@ class AwareImage(Image):
                                     "raw", "L", 0, 1)
         aw_j2k_free(self._j2k_object_p, data_p.contents)
         return image
-        
+
 
     def save(self,  fp, format="JPEG", **kwargs):
         aware.MagickSetImageFormat(self._j2k_object, format)
