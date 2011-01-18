@@ -58,7 +58,8 @@ class GraphicsMagickImage(Image):
         new_image = GraphicsMagickImage(magick_wand=new_wand)
 
         for k in self.__dict__:
-            if k == "_wand": continue
+            if k == "_wand":
+                continue
             setattr(new_image, k, deepcopy(getattr(self, k), memo))
 
         return new_image
@@ -107,7 +108,7 @@ class GraphicsMagickImage(Image):
 
         return im
 
-    def save(self,  fp, format="JPEG", **kwargs):
+    def save(self, fp, format="JPEG", **kwargs):
         wand.MagickSetImageFormat(self._wand, format)
         assert format == wand.MagickGetImageFormat(self._wand)
 
@@ -118,7 +119,8 @@ class GraphicsMagickImage(Image):
             wand.MagickReadImageFile(self._wand, c_file)
         elif hasattr(fp, "write"):
             length = ctypes.c_size_t()
-            data = wand.MagickWriteImageBlob(self._wand, ctypes.pointer(length))
+            data = wand.MagickWriteImageBlob(self._wand,
+                                                ctypes.pointer(length))
             fp.write(data[0:length.value])
         else:
             raise ValueError("Don't know how to write to a %r" % fp)

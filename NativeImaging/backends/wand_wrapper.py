@@ -1,7 +1,9 @@
 # encoding: utf-8
 """
+ctypes wrappers for GraphicsMagick functions with error-handling
 
-n.b. Heavy consultation of http://www.graphicsmagick.org/wand/magick_wand.html and the ctypes documentation is advised
+n.b. Heavy consultation of http://www.graphicsmagick.org/wand/magick_wand.html
+and the ctypes documentation is advised
 """
 
 from ctypes.util import find_library
@@ -15,6 +17,7 @@ if not _wandlib_path:
 
 _wandlib = ctypes.CDLL(_wandlib_path)
 _wandlib.InitializeMagick(sys.argv[0])
+
 
 def _wand_errcheck(rc, func, args):
     """
@@ -54,13 +57,16 @@ FilterTypes = {
   'SincFilter': 15,
 }
 
+
 class WandException(Exception):
     pass
+
 
 class MagickWand(ctypes.Structure):
     pass
 
 WAND_P = ctypes.POINTER(MagickWand)
+
 
 class FILE(ctypes.Structure):
     pass
@@ -71,7 +77,7 @@ MagickBooleanType = ctypes.c_uint
 FILE_P = ctypes.POINTER(FILE)
 
 # TODO: Is there a way to load this without configuring a global library?
-ctypes.pythonapi.PyFile_AsFile.argtypes = (ctypes.py_object,)
+ctypes.pythonapi.PyFile_AsFile.argtypes = (ctypes.py_object, )
 ctypes.pythonapi.PyFile_AsFile.restype = FILE_P
 
 MagickGetException = _wandlib.MagickGetException
@@ -114,17 +120,17 @@ MagickReadImage.errcheck = _wand_errcheck
 
 MagickGetImageHeight = _wandlib.MagickGetImageHeight
 MagickGetImageHeight.restype = ctypes.c_ulong
-MagickGetImageHeight.argtypes = (WAND_P,)
+MagickGetImageHeight.argtypes = (WAND_P, )
 MagickGetImageHeight.errcheck = _wand_errcheck
 
 MagickGetImageWidth = _wandlib.MagickGetImageWidth
 MagickGetImageWidth.restype = ctypes.c_ulong
-MagickGetImageWidth.argtypes = (WAND_P,)
+MagickGetImageWidth.argtypes = (WAND_P, )
 MagickGetImageWidth.errcheck = _wand_errcheck
 
 MagickGetImageFormat = _wandlib.MagickGetImageFormat
 MagickGetImageFormat.restype = ctypes.c_char_p
-MagickGetImageFormat.argtypes = (WAND_P,)
+MagickGetImageFormat.argtypes = (WAND_P, )
 MagickGetImageFormat.errcheck = _wand_errcheck
 
 MagickSetImageFormat = _wandlib.MagickSetImageFormat
