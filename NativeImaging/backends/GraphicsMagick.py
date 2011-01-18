@@ -99,11 +99,11 @@ class GraphicsMagickImage(Image):
         # http://www.graphicsmagick.org/api/transform.html#cropimage
         x0, y0, x1, y1 = box
         width = x1 - x0
-        height = y1 - y1
+        height = y1 - y0
 
         im = self.copy()
 
-        wand.MagickCropImage(im._wand, x0, y0, width, height)
+        wand.MagickCropImage(im._wand, width, height, x0, y0)
 
         return im
 
