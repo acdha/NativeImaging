@@ -1,14 +1,28 @@
 #!/usr/bin/env python
 
 from collections import defaultdict
+from optparse import OptionParser
 from time import time
 import os
+import subprocess
 import sys
+
 
 from NativeImaging import get_image_class
 
+from stats_recorder import save_to_codespeed
+
+
+parser = OptionParser()
+parser.add_option("--codespeed-environment", default=None, help="Use a custom Codespeed environment")
+parser.add_option("--codespeed-url", "--codespeed", default=None,
+                    help="Save results to the specified Codespeed server")
+
+(options, backend_names) = parser.parse_args()
+
+
 BACKENDS = {}
-for backend_name in sys.argv[1:] or ('PIL', 'GraphicsMagick', 'Aware'):
+for backend_name in (backend_names or ('PIL', 'GraphicsMagick', 'Aware')):
     try:
         BACKENDS[backend_name] = get_image_class(backend_name)
     except KeyError:
@@ -53,3 +67,14 @@ for f_name, scores in TIMES.items():
     for lib, elapsed in scores.items():
         print "\t%16s: %0.2f" % (lib, elapsed)
     print
+
+if options.codespeed_url:
+    commit_id = subprocess.Popen(["git", "rev-parse", "HEAD"],
+                                    stdout=subprocess.PIPE).communicate()[0].strip()
+
+    for f_name, scores in TIMES.items():
+        for lib, elapsed in scores.items():
+            save_to_codespeed(options.codespeed_url, "NativeImaging", commit_id,
+                                lib, f_name, elapsed,
+                                environment=options.codespeed_environment)
+
