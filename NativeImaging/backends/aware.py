@@ -8,6 +8,7 @@ import ctypes
 from PIL import Image as PILImage
 from NativeImaging.api import Image
 
+
 _path = find_library("awj2k")
 
 if not _path:
@@ -29,6 +30,7 @@ class AwareException(Exception):
 
 class J2KObject(ctypes.Structure):
     pass
+
 
 J2K_OBJECT_P = ctypes.POINTER(J2KObject)
 
@@ -130,8 +132,6 @@ class AwareImage(Image):
         self.__crop = None
         self.__resize = None
         self._j2k_object_p = ctypes.c_void_p()
-        #print "creating j2k object:",
-        #print "p1:", self._j2k_object_p.value
         aw_j2k_create(ctypes.byref(self._j2k_object_p))
         assert self._j2k_object_p.value, "failed to create j2k_object"
 
@@ -213,7 +213,7 @@ class AwareImage(Image):
                                     ctypes.byref(nChannels),
                                     ctypes.byref(bpp), 0)
         data = data_p.contents[0:data_length.value]
-        #print cols.value, rows.value, nChannels.value, bpp.value
+
         image = PILImage.frombuffer("L", (cols.value, rows.value),
                                     data,
                                     "raw", "L", 0, 1)
@@ -221,33 +221,5 @@ class AwareImage(Image):
         return image
 
     def save(self, fp, format="JPEG", **kwargs):
-        aware.MagickSetImageFormat(self._j2k_object, format)
-        assert format == aware.MagickGetImageFormat(self._j2k_object)
-
-        if isinstance(fp, file):
-            c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-            aware.MagickWriteImageFile(self._j2k_object, c_file)
-        else:
-            length = ctypes.c_size_t()
-            data = aware.MagickWriteImageBlob(self._j2k_object, ctypes.pointer(length))
-            fp.write(data[0:length.value])
-
-if __name__ == "__main__":
-    from urllib2 import urlopen
-
-    JP2_URL = 'http://chroniclingamerica.loc.gov/data/hihouml/batch_hihouml_cardinal_ver01/data/sn83025121/00211108897/1882020101/0015.jp2'
-
-    fp = urlopen(JP2_URL)
-
-    #from NativeImaging.backends.GraphicsMagick import GraphicsMagickImage as Image
-    #i = Image.open(fp)
-    i = AwareImage.open(fp)
-
-    print "orig size:", i.size
-    #i.resize((i.size[0]/2, i.size[1]/2))
-    im = i.crop((1000, 1000, 2000, 2000))
-    im = i.resize((200, 200))
-    print "resized to:", im.size
-    im.save(open("/tmp/foo.jpeg", "wb"), format="JPEG")
-
+        return self.copy().save(fp, format, **kwargs)
 
