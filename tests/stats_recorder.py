@@ -47,7 +47,7 @@ def save_to_codespeed(url, project, commitid, executable, benchmark, result_valu
     data.update(kwargs)
     
     if not data.get('environment', None):
-        data['environment'] = platform.platform(aliased=True)
+        data['environment'] = platform.node()
 
     f = urllib.urlopen(url, urllib.urlencode(data))
 
