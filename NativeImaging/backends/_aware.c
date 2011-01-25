@@ -107,7 +107,7 @@ j2k_set_output_com_image_size(PyObject *self, PyObject *args)
   int width, height;
   unsigned int preserve;
 
-  if (!PyArg_ParseTuple(args, "iiiI", &j2k_object, &width, &height, &preserve))
+  if (!PyArg_ParseTuple(args, "iiiI", &j2k_object, &height, &width, &preserve))
     return NULL;
   retval = aw_j2k_set_output_com_image_size(j2k_object, 
 					    height, width, preserve);
@@ -156,13 +156,13 @@ j2k_get_input_image_info(PyObject *self, PyObject *args)
 
   if (!PyArg_ParseTuple(args, "i", &j2k_object))
     return NULL;
-  retval = aw_j2k_get_input_image_info(j2k_object, &rows, &cols, &bpp, 
+  retval = aw_j2k_get_input_image_info(j2k_object, &cols, &rows, &bpp, 
                               &nChannels); 
 
   RETURN_IF_ERR(retval,
                 "aw_j2k_get_input_image_info returned an error code.");
 
-  result = Py_BuildValue("iiii", rows, cols, nChannels, bpp);
+  result = Py_BuildValue("iiii", cols, rows, bpp, nChannels);
   return result;
 }
 

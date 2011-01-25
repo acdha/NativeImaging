@@ -52,7 +52,7 @@ class AwareImage(Image):
 
     @property
     def size(self):
-        rows, cols, channels, bpp = _aware.j2k_get_input_image_info(
+        cols, rows, bpp, channels = _aware.j2k_get_input_image_info(
             self._j2k_object_p)
         return cols, rows
 
@@ -113,7 +113,7 @@ if __name__=="__main__":
 
     i = Image.open(fp)
     print "size:", i.size
-    im = i.crop((1000, 1000, 2000, 2000))
-    im = im.resize((200, 200))
+    im = i.crop((1000, 1000, 2000, 3000))
+    im = im.resize((200, 300))
     print "resized to:", im.size
     im.save(open("/tmp/foo.jpeg", "wb"), format="JPEG")
