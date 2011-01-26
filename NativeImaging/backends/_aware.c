@@ -51,7 +51,7 @@ j2k_set_input_image(PyObject *self, PyObject *args)
   int retval;
   aw_j2k_object *j2k_object;
   unsigned char* buffer;  // unsigned?
-  unsigned long buffer_length;  // unsigned? long?
+  int buffer_length;
 
   if (!PyArg_ParseTuple(args, "is#", &j2k_object, &buffer, &buffer_length))
     return NULL;
