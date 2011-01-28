@@ -7,9 +7,9 @@ import logging
 
 def save_to_codespeed(url, project, commitid, executable, benchmark, result_value, **kwargs):
     """
-    
+
     Mandatory:
-    
+
     :param url:
         Codespeed server endpoint (e.g. `http://codespeed.example.org/result/add/`)
     :param project:
@@ -21,7 +21,7 @@ def save_to_codespeed(url, project, commitid, executable, benchmark, result_valu
     :param float result_value:
 
     Optional:
-    
+
     :environment:
         System description
     :param date revision_date:
@@ -45,7 +45,7 @@ def save_to_codespeed(url, project, commitid, executable, benchmark, result_valu
         'result_value': result_value,
     }
     data.update(kwargs)
-    
+
     if not data.get('environment', None):
         data['environment'] = platform.node()
 
@@ -53,7 +53,7 @@ def save_to_codespeed(url, project, commitid, executable, benchmark, result_valu
 
     response = f.read()
     status = f.getcode()
-    
+
     if status == 200:
         log_f = logging.debug
     else:

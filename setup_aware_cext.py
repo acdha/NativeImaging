@@ -42,7 +42,7 @@ def run_aware_setup():
          license = 'http://creativecommons.org/licenses/publicdomain/',
          version='1.0',
          ext_modules=[
-           Extension('_aware', 
+           Extension('_aware',
                      ['./NativeImaging/backends/_aware.c'],
                      libraries=['awj2k'])
            ],
