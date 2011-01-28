@@ -10,10 +10,22 @@ vectorization, etc.
 The goal is simple: a user should be able to install NativeImaging and do
 something like this to a program which is currently using PIL::
 
-    from NativeImaging.backends.GraphicsMagick import GraphicsMagickImage as Image
+    from NativeImaging import get_image_class
+
+    Image = get_image_class("GraphicsMagick")
+
 
 Status
 ------
+
+aware and aware_cext
+~~~~~~~~~~~~~~~~~~~~
+
+Very fast JPEG 2000 thumbnail generation compared to GraphicsMagick. Requires
+the non-OSS AWARE library: http://www.aware.com/imaging/jpeg2000.htm
+
+GraphicsMagick
+~~~~~~~~~~~~~~
 
 Currently only the most basic use-case is supported: loading an image,
 resizing it and saving the result. Testing reveals mixed results, beating PIL
