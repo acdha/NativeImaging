@@ -1,5 +1,14 @@
 from setuptools import setup
 
+from setup_aware_cext import run_aware_setup, BuildFailed
+
+try:
+    run_aware_setup()
+except BuildFailed:
+    print '*' * 75
+    print "WARNING: Unable to install _aware"
+
+
 setup(
     author='Chris Adams',
     author_email='chris@improbable.org',
