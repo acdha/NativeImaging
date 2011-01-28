@@ -56,16 +56,26 @@ such as threading, broader format support (including JPEG-2000),
 vectorization, etc.</p>
 <p>The goal is simple: a user should be able to install NativeImaging and do
 something like this to a program which is currently using PIL:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">NativeImaging.backends.GraphicsMagick</span> <span class="kn">import</span> <span class="n">GraphicsMagickImage</span> <span class="k">as</span> <span class="n">Image</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">NativeImaging</span> <span class="kn">import</span> <span class="n">get_image_class</span>
+
+<span class="n">Image</span> <span class="o">=</span> <span class="n">get_image_class</span><span class="p">(</span><span class="s">&quot;GraphicsMagick&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="status">
 <h2>Status<a class="headerlink" href="#status" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="aware-and-aware-cext">
+<h3>aware and aware_cext<a class="headerlink" href="#aware-and-aware-cext" title="Permalink to this headline">¶</a></h3>
+<p>Very fast JPEG 2000 thumbnail generation compared to GraphicsMagick. Requires
+the non-OSS AWARE library: <a class="reference external" href="http://www.aware.com/imaging/jpeg2000.htm">http://www.aware.com/imaging/jpeg2000.htm</a></p>
+</div>
+<div class="section" id="graphicsmagick">
+<h3>GraphicsMagick<a class="headerlink" href="#graphicsmagick" title="Permalink to this headline">¶</a></h3>
 <p>Currently only the most basic use-case is supported: loading an image,
 resizing it and saving the result. Testing reveals mixed results, beating PIL
 when producing thumbnails from large TIFFs and underperforming when
 thumbnailing equivalent JPEGs, both by about 2:1. Further profiling is
 warranted.</p>
+</div>
 </div>
 </div>
 <div class="section" id="table-of-contents">
@@ -74,6 +84,7 @@ warranted.</p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Common API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="backends/aware.html">AWARE Backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backends/aware_cext.html">AWARE Backend (C extension)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="backends/graphicsmagick.html">Graphics Magick Backend</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="backends/graphicsmagick.html#module-NativeImaging.backends.GraphicsMagick">High-Level</a></li>
 <li class="toctree-l2"><a class="reference internal" href="backends/graphicsmagick.html#module-NativeImaging.backends.wand_wrapper">Low-Level</a></li>
@@ -99,7 +110,11 @@ dependencies current.</p>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Native Imaging</a><ul>
-<li><a class="reference internal" href="#status">Status</a></li>
+<li><a class="reference internal" href="#status">Status</a><ul>
+<li><a class="reference internal" href="#aware-and-aware-cext">aware and aware_cext</a></li>
+<li><a class="reference internal" href="#graphicsmagick">GraphicsMagick</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#table-of-contents">Table of Contents</a><ul>
