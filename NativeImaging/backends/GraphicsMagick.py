@@ -37,7 +37,7 @@ class GraphicsMagickImage(Image):
         if isinstance(fp, basestring):
             wand.MagickReadImage(i._wand, fp)
         elif isinstance(fp, file):
-            c_file = ctypes.pythonapi.PyFile_AsFile(fp)
+            i._c_file = c_file = ctypes.pythonapi.PyFile_AsFile(fp)
             wand.MagickReadImageFile(i._wand, c_file)
         elif hasattr(fp, "read"):
             b = ctypes.create_string_buffer(fp.read())
