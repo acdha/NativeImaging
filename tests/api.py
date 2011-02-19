@@ -1,8 +1,10 @@
 # encoding: utf-8
 
 import os
+import tempfile
 
 SAMPLE_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "samples"))
+
 
 class ApiConformanceTests(object):
     """
@@ -40,6 +42,11 @@ class ApiConformanceTests(object):
 
     def test_repr(self):
         self.assertNotEqual(0, len(repr(self.open_sample_image())))
+
+    def test_save(self):
+        """Test of basic image saving"""
+        img = self.open_sample_image()
+        img.save(tempfile.TemporaryFile(), format="PNG")
 
     def test_resize(self):
         img = self.open_sample_image()
