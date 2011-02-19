@@ -17,6 +17,9 @@ def get_image_class(backend):
     elif backend.lower() == "graphicsmagick":
         from backends.GraphicsMagick import GraphicsMagickImage
         return GraphicsMagickImage
+    elif backend.lower() == "java":
+        from backends.java import JavaImage
+        return JavaImage
     elif backend.lower() == "pil":
         # Useful only for benchmarking:
         from PIL import Image

@@ -31,11 +31,13 @@ else:
 logging.basicConfig(format="%(asctime)s [%(levelname)s]: %(message)s",
                     level=log_level)
 
+test_backends = backend_names or ('PIL', 'GraphicsMagick', 'Aware','java')
 BACKENDS = {}
-for backend_name in (backend_names or ('PIL', 'GraphicsMagick', 'Aware')):
+
+for backend_name in test_backends:
     try:
         BACKENDS[backend_name] = get_image_class(backend_name)
-    except KeyError:
+    except (ImportError, KeyError):
         print >>sys.stderr, "Can't load %s backend" % backend_name
 
 SAMPLE_DIR = os.path.join(os.path.dirname(__file__), "samples")

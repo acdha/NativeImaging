@@ -37,6 +37,11 @@ class ApiConformanceTests(object):
         sample_jpg = os.path.join(SAMPLE_DIR, "5071384885_c5f331d337_b.jpg")
         return self.IMAGE_CLASS.open(sample_jpg)
 
+    def test_save(self):
+        """Test of basic image saving"""
+        img = self.open_sample_image()
+        img.save(tempfile.TemporaryFile(), format="PNG")
+
     def test_size(self):
         self.assertEqual(self.open_sample_image().size, (1024L, 680L))
 
@@ -98,6 +103,10 @@ class ApiConformanceTests(object):
         img = self.open_sample_image()
         self.assertEqual(img.crop((32, 32, 96, 96)).size, (64, 64))
 
-    def test_rotate(self):
+    def test_rotate_90(self):
         img = self.open_sample_image()
-        self.assertEqual(img.rotate(45).size, (1024L, 680L))
+        self.assertEqual(img.rotate(90).size, (680L, 1024L))
+
+    def test_rotate_arb(self):
+        img = self.open_sample_image()
+        self.assertEqual(img.rotate(43).size, (1024L, 680L))
