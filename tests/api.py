@@ -38,6 +38,9 @@ class ApiConformanceTests(object):
     def test_size(self):
         self.assertEqual(self.open_sample_image().size, (1024L, 680L))
 
+    def test_repr(self):
+        self.assertNotEqual(0, len(repr(self.open_sample_image())))
+
     def test_resize(self):
         img = self.open_sample_image()
         small = img.resize((128, 256))

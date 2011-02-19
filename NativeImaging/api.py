@@ -72,8 +72,14 @@ class Image(object):
         raise NotImplementedError()
 
     def __repr__(self):
-        return "" % (self.__class__.__module__, self.__class__.__name__,
-                        self.mode, self.size[0], self.size[1], id(self))
+        return "%(module)s.%(classname)s(%(id)s) " \
+                "<%(width)sx%(height)s, mode=%(mode)s>" % dict(
+                    module=self.__class__.__module__,
+                    classname=self.__class__.__name__,
+                    mode=self.mode,
+                    width=self.size[0],
+                    height=self.size[1],
+                    id=id(self))
 
     def copy(self):
         """
