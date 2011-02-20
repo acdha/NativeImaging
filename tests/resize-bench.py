@@ -3,10 +3,10 @@
 from collections import defaultdict
 from optparse import OptionParser
 from time import time
+import logging
 import os
 import subprocess
 import sys
-
 
 from NativeImaging import get_image_class
 
@@ -14,12 +14,22 @@ from stats_recorder import save_to_codespeed
 
 
 parser = OptionParser()
+parser.add_option("-v", default=0, dest="verbosity", action="count")
 parser.add_option("--codespeed-environment", default=None, help="Use a custom Codespeed environment")
 parser.add_option("--codespeed-url", "--codespeed", default=None,
                     help="Save results to the specified Codespeed server")
 
 (options, backend_names) = parser.parse_args()
 
+if options.verbosity > 1:
+    log_level = logging.DEBUG
+elif options.verbosity > 0:
+    log_level = logging.INFO
+else:
+    log_level = logging.WARNING
+
+logging.basicConfig(format="%(asctime)s [%(levelname)s]: %(message)s",
+                    level=log_level)
 
 BACKENDS = {}
 for backend_name in (backend_names or ('PIL', 'GraphicsMagick', 'Aware')):
@@ -42,6 +52,7 @@ for filename in os.listdir(SAMPLE_DIR):
     basename = os.path.splitext(filename)[0]
 
     for backend_name, backend_class in BACKENDS.items():
+        logging.info("Resizing %s using %s", filename, backend_name)
         start_time = time()
 
         try:
@@ -55,8 +66,15 @@ for filename in os.listdir(SAMPLE_DIR):
             master.save(open(output_file, "wb"), "JPEG")
 
             TIMES[filename][backend_name] = time() - start_time
-        except StandardError, e:
-            print >>sys.stderr, "%s: exception processing %s: %s" % (backend_name, filename, e)
+
+        # This allows us to use a blanket except below which has the nice
+        # property of catching direct Exception subclasses and things like
+        # java.lang.Exception subclasses on Jython:
+        except SystemExit:
+            sys.exit(1)
+        except:
+            logging.exception("%s: exception processing %s", backend_name,
+                            filename)
 
 print
 print "Results"
