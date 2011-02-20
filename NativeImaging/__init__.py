@@ -3,6 +3,9 @@ def get_image_class(backend):
     Returns the Image class for the specified backend
 
     Handy in cases where you wish to make this configurable at runtime
+
+    Callers must be prepared to handle ImportErrors when a given backend
+    cannot be loaded and KeyError when an unknown backend is requested
     """
 
     if backend == "aware":
