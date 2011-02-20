@@ -502,10 +502,6 @@ class Image(object):
         configure the file reader (where applicable), and finally resizes the
         image.
 
-        Note that the bilinear and bicubic filters in the current version of
-        PIL are not well-suited for thumbnail generation. You should use
-        ANTIALIAS unless speed is much more important than quality.
-
         Also note that this function modifies the Image object in place. If
         you need to use the full resolution image as well, apply this method
         to a :meth:`Image.copy` of the original image.
