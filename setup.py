@@ -14,7 +14,7 @@ setup(
     author_email='chris@improbable.org',
     name='NativeImaging',
     version='0.0.4',
-    url='http://acdha.github.com/NativeImaging/',
+    url='http://github.com/acdha/NativeImaging/',
     license='http://www.opensource.org/licenses/mit-license.php',
     packages=['NativeImaging', 'NativeImaging.backends'],
     description='PIL-like interface using existing libraries such as GraphicsMagick or CoreImage',
