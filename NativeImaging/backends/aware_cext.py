@@ -47,6 +47,8 @@ class AwareImage(Image):
     @classmethod
     def open(cls, fp, mode="rb"):
         i = cls()
+        if isinstance(fp, basestring):
+            fp = open(fp, "rb")
         _aware.j2k_set_input_image(i._j2k_object_p, fp.read())
         return i
 
@@ -91,13 +93,18 @@ class AwareImage(Image):
 
         if self.__resize:
             width, height = self.__resize
-            _aware.j2k_set_output_com_image_size(self._j2k_object_p,
-                                                 height, width,
-                                                 AW_J2K_MODIFY_ASPECT_RATIO)
+            try:
+                _aware.j2k_set_output_com_image_size(self._j2k_object_p,
+                                                     height, width,
+                                                     AW_J2K_MODIFY_ASPECT_RATIO)
+            except _aware.error, e:
+                pass
 
         result = _aware.j2k_get_output_image_raw(self._j2k_object_p)
         rows, cols, nChannels, bpp, data = result
         image = PILImage.frombuffer("L", (cols, rows), data, "raw", "L", 0, 1)
+        if self.__resize and image.size!=self.__resize:
+            image.resize((width, height))
         return image
 
     def save(self, fp, format="JPEG", **kwargs):
@@ -117,3 +124,7 @@ if __name__=="__main__":
     im = im.resize((200, 300))
     print "resized to:", im.size
     im.save(open("/tmp/foo.jpeg", "wb"), format="JPEG")
+
+    im = i.crop((100, 100, 200, 300))
+    im = im.resize((200, 300))
+    print "resized to:", im.size
