@@ -7,6 +7,7 @@ import logging
 import os
 import subprocess
 import sys
+import tempfile
 
 from NativeImaging import get_image_class
 
@@ -41,7 +42,7 @@ for backend_name in test_backends:
         print >>sys.stderr, "Can't load %s backend" % backend_name
 
 SAMPLE_DIR = os.path.join(os.path.dirname(__file__), "samples")
-OUTPUT_DIR = os.path.join(os.environ.get("TMPDIR"), "resize-bench")
+OUTPUT_DIR = os.path.join(tempfile.gettempdir(), "resize-bench")
 
 TIMES = defaultdict(dict)
 
