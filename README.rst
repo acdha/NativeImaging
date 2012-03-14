@@ -27,8 +27,14 @@ the non-OSS AWARE library: http://www.aware.com/imaging/jpeg2000.htm
 GraphicsMagick
 ~~~~~~~~~~~~~~
 
-Currently only the most basic use-case is supported: loading an image,
-resizing it and saving the result. Testing reveals mixed results, beating PIL
-when producing thumbnails from large TIFFs and underperforming when
-thumbnailing equivalent JPEGs, both by about 2:1. Further profiling is
-warranted.
+Currently supports typical web application usage: loading an image, resizing it
+and saving the result. Testing reveals mixed results, beating PIL when
+producing thumbnails from large TIFFs and underperforming when thumbnailing
+equivalent JPEGs, both by about 2:1.
+
+Jython
+~~~~~~
+
+Currently supports basic usage: loading an image, resizing it, and saving the
+result. Performance is generally quite decent as the Java Advanced Imaging API
+is quite tuned, if somewhat baroque in design.
