@@ -1,6 +1,11 @@
 from setuptools import setup
+import os
 
 from setup_aware_cext import run_aware_setup, BuildFailed
+
+def read_file(fn):
+    return open(os.path.join(os.path.dirname(__file__), fn)).read()
+
 
 try:
     run_aware_setup()
@@ -17,5 +22,6 @@ setup(
     url='http://github.com/acdha/NativeImaging/',
     license='http://www.opensource.org/licenses/mit-license.php',
     packages=['NativeImaging', 'NativeImaging.backends'],
-    description='PIL-like interface using existing libraries such as GraphicsMagick or CoreImage',
+    description='PIL-like interface for system imaging libraries',
+    long_description=read_file("README.rst"),
 )
