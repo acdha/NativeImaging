@@ -48,6 +48,9 @@ if not os.path.exists(OUTPUT_DIR):
 print "Comparison images are saved in %s" % OUTPUT_DIR
 
 for filename in os.listdir(SAMPLE_DIR):
+    if filename.startswith("."):
+        continue
+
     basename = os.path.splitext(filename)[0]
 
     for backend_name, backend_class in BACKENDS.items():
