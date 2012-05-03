@@ -18,7 +18,7 @@ setup(
     author='Chris Adams',
     author_email='chris@improbable.org',
     name='NativeImaging',
-    version='0.0.5',
+    version='0.0.6',
     url='http://github.com/acdha/NativeImaging/',
     license='http://www.opensource.org/licenses/mit-license.php',
     packages=['NativeImaging', 'NativeImaging.backends'],
