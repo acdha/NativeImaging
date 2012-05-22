@@ -4,7 +4,7 @@ python:
 - "2.7"
 - "pypy"
 install:
-- sudo apt-get install -qy graphicsmagick
+- sudo apt-get install -qqy graphicsmagick zlib1g-dev
 - pip install PIL nose
 - python setup.py install
 script:
