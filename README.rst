@@ -18,6 +18,10 @@ something like this to a program which is currently using PIL::
 Status
 ------
 
+.. image:: https://secure.travis-ci.org/acdha/NativeImaging.png
+   :alt: Build Status
+   :target: http://travis-ci.org/acdha/NativeImaging
+
 aware and aware_cext
 ~~~~~~~~~~~~~~~~~~~~
 
