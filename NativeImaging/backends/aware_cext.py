@@ -22,7 +22,7 @@ def scaled_dimension(progression_level, dimension):
 
 def desired_progression_level(x1, x2, y1, y2, width, height):
     level = MAX_PROGRESSION_LEVEL
-    while level > 0 and \
+    while level > 1 and \
             width > scaled_dimension(level, x2 - x1) and \
             height > scaled_dimension(level, y2 - y1):
         level -= 1
