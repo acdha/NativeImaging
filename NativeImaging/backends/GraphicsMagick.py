@@ -9,7 +9,10 @@ import ctypes
 
 from NativeImaging.api import Image
 
-import wand_wrapper as wand
+try:
+    import wand_wrapper_cffi as wand
+except ImportError:
+    import wand_wrapper as wand
 
 
 class GraphicsMagickImage(Image):
