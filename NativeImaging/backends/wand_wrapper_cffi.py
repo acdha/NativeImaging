@@ -6,6 +6,7 @@ n.b. Heavy consultation of http://www.graphicsmagick.org/wand/magick_wand.html
 and the cffi documentation is advised
 """
 
+from functools import wraps
 import sys
 
 from cffi import FFI
@@ -17,35 +18,46 @@ class WandException(Exception):
     pass
 
 
-def _wand_errcheck(rc, func, args):
-    """
-    Intended for use as a ctypes errcheck function
+def check_rc(f):
+    @wraps(f)
+    def inner(*args):
+        rc = f(*args)
+        if not rc:
+            err_type = ffi.new("ExceptionType *")
 
-    Can only be used with functions which take Wand as their first argument
-    """
+            desc_cdata = _wand.MagickGetException(args[0], err_type)
+            description = ffi.string(desc_cdata)
 
-    if not rc:
-        err_type = ffi.new("int", 0)
-        description = wand.MagickGetException(args[0], err_type)
+            print err_type[0], description
 
-        if err_type.value == 430:  # "Unable to open file"
-            raise IOError(description)
+            if err_type[0] == '#430':  # "Unable to open file"
+                raise IOError(description)
+            else:
+                raise WandException(description)
         else:
-            raise WandException(description)
-    else:
-        return rc
+            return rc
+    return inner
+
+def returns_string(f):
+    """Decorator which ensures that char* objects return simply Python strings"""
+
+    @wraps(f)
+    def inner(*args):
+        return ffi.string(f(*args))
+
+    return inner
 
 
 ffi.cdef("""
-    struct _MagickWand { ...; };
-
-    typedef struct _MagickWand MagickWand;
+    struct _MagickWand; typedef struct _MagicWand MagickWand;
     typedef enum { ... } ExceptionType;
     typedef enum { ... } FilterTypes;
 
+    void InitializeMagick( const char *path );
+
     char *MagickGetException( const MagickWand *wand, ExceptionType *severity );
 
-    MagickWand NewMagickWand( void );
+    MagickWand *NewMagickWand( void );
     MagickWand *CloneMagickWand( const MagickWand *wand );
     void DestroyMagickWand( MagickWand *wand );
 
@@ -100,10 +112,54 @@ def pkgconfig(*packages, **kw):
 
     return kw
 
-wand = ffi.verify("""
+_wand = ffi.verify("""
 #include <wand/magick_wand.h>
 """, **pkgconfig('GraphicsMagickWand'))
 
-# FIXME: update _wand_errcheck to decorate wand.* for functions in cdefs
+_wand.InitializeMagick(sys.argv[0])
 
-wand.InitializeMagick(sys.argv[0])
+DestroyMagickWand = _wand.DestroyMagickWand
+
+NewMagickWand = check_rc(_wand.NewMagickWand)
+CloneMagickWand = check_rc(_wand.CloneMagickWand)
+
+MagickStripImage = check_rc(_wand.MagickStripImage)
+
+MagickReadImage = check_rc(_wand.MagickReadImage)
+MagickReadImageBlob = check_rc(_wand.MagickReadImageBlob)
+MagickReadImageFile = check_rc(_wand.MagickReadImageFile)
+
+MagickSetImageFormat = check_rc(_wand.MagickSetImageFormat)
+
+MagickWriteImage = check_rc(_wand.MagickWriteImage)
+MagickWriteImagesFile = check_rc(_wand.MagickWriteImagesFile)
+MagickWriteImageFile = check_rc(_wand.MagickWriteImageFile)
+
+MagickScaleImage = check_rc(_wand.MagickScaleImage)
+MagickResizeImage = check_rc(_wand.MagickResizeImage)
+MagickCropImage = check_rc(_wand.MagickCropImage)
+
+MagickGetImageHeight = check_rc(_wand.MagickGetImageHeight)
+MagickGetImageWidth = check_rc(_wand.MagickGetImageWidth)
+
+MagickGetImageFormat = returns_string(_wand.MagickGetImageFormat)
+
+# FIXME: figure out how to automatically populate a dict with the enum values to stay in sync with the upstream
+FilterTypes = {
+    'UndefinedFilter': 0,
+    'PointFilter': 1,
+    'BoxFilter': 2,
+    'TriangleFilter': 3,
+    'HermiteFilter': 4,
+    'HanningFilter': 5,
+    'HammingFilter': 6,
+    'BlackmanFilter': 7,
+    'GaussianFilter': 8,
+    'QuadraticFilter': 9,
+    'CubicFilter': 10,
+    'CatromFilter': 11,
+    'MitchellFilter': 12,
+    'LanczosFilter': 13,
+    'BesselFilter': 14,
+    'SincFilter': 15,
+}

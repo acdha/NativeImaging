@@ -1,6 +1,6 @@
 # encoding: utf-8
 """
-An Image-compatible backend using GraphicsMagick via ctypes
+An Image-compatible backend using GraphicsMagick
 """
 
 from copy import deepcopy
@@ -37,6 +37,7 @@ class GraphicsMagickImage(Image):
     def open(cls, fp, mode="rb"):
         i = cls()
 
+        # TODO: move magic argument handling into the backend library so e.g. cffi's FILE* works
         if isinstance(fp, basestring):
             wand.MagickReadImage(i._wand, fp)
         elif isinstance(fp, file):
@@ -121,9 +122,10 @@ class GraphicsMagickImage(Image):
         if isinstance(fp, basestring):
             wand.MagickWriteImage(self._wand, fp)
         elif isinstance(fp, file):
-            c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-            wand.MagickWriteImageFile(self._wand, c_file)
+            # c_file = ctypes.pythonapi.PyFile_AsFile(fp)
+            wand.MagickWriteImageFile(self._wand, fp)
         elif hasattr(fp, "write"):
+            raise NotImplementedError
             length = ctypes.c_size_t()
             data = wand.MagickWriteImageBlob(self._wand, ctypes.pointer(length))
             fp.write(data[0:length.value])
