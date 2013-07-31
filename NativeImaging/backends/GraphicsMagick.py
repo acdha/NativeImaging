@@ -109,6 +109,9 @@ class GraphicsMagickImage(Image):
         return im
 
     def save(self, fp, format="JPEG", **kwargs):
+        if 'quality' in kwargs:
+            wand.MagickSetCompressionQuality(self._wand, kwargs['quality'])
+
         wand.MagickSetImageFormat(self._wand, format)
         assert format == wand.MagickGetImageFormat(self._wand)
 

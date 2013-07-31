@@ -42,6 +42,11 @@ class ApiConformanceTests(object):
         img = self.open_sample_image()
         img.save(tempfile.TemporaryFile(), format="PNG")
 
+    def test_save_with_quality(self):
+        """Test of basic image saving"""
+        img = self.open_sample_image()
+        img.save(tempfile.TemporaryFile(), format="JPG", quality=75)
+
     def test_size(self):
         self.assertEqual(self.open_sample_image().size, (1024L, 680L))
 

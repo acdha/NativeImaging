@@ -138,6 +138,11 @@ MagickSetImageFormat.restype = MagickBooleanType
 MagickSetImageFormat.argtypes = [WAND_P, ctypes.c_char_p]
 MagickSetImageFormat.errcheck = _wand_errcheck
 
+MagickSetCompressionQuality = _wandlib.MagickSetCompressionQuality
+MagickSetCompressionQuality.restype = MagickBooleanType
+MagickSetCompressionQuality.argtypes = [WAND_P, ctypes.c_ulong]
+MagickSetCompressionQuality.errcheck = _wand_errcheck
+
 MagickWriteImage = _wandlib.MagickWriteImage
 MagickWriteImage.restype = MagickBooleanType
 MagickWriteImage.argtypes = [WAND_P, ctypes.c_char_p]
