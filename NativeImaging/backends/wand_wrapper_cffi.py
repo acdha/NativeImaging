@@ -70,6 +70,7 @@ ffi.cdef("""
 
     const char *MagickGetImageFormat( MagickWand *wand );
     unsigned int MagickSetImageFormat( MagickWand *wand, const char *format );
+    unsigned int MagickSetCompressionQuality( MagickWand *wand, const unsigned long quality );
 
     unsigned int MagickWriteImage( MagickWand *wand, const char *filename );
     unsigned int MagickWriteImagesFile( MagickWand *wand, FILE *file, const unsigned int adjoin );
@@ -128,6 +129,7 @@ MagickReadImageBlob = check_rc(_wand.MagickReadImageBlob)
 MagickReadImageFile = check_rc(_wand.MagickReadImageFile)
 
 MagickSetImageFormat = check_rc(_wand.MagickSetImageFormat)
+MagickSetCompressionQuality = check_rc(_wand.MagickSetCompressionQuality)
 
 MagickWriteImage = check_rc(_wand.MagickWriteImage)
 MagickWriteImagesFile = check_rc(_wand.MagickWriteImagesFile)
