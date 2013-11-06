@@ -11,7 +11,7 @@ http://stackoverflow.com/questions/4470958/why-does-loading-this-jpg-using-javai
 from __future__ import absolute_import, division
 
 from copy import deepcopy
-import array
+from array import array
 import math
 import sys
 
@@ -48,6 +48,8 @@ class JavaImage(Image):
 
         elif not hasattr(fp, "read"):
             raise TypeError("Don't know how to open a %r" % fp)
+
+        else:
 
             try:
                 byte_array = array("b")
