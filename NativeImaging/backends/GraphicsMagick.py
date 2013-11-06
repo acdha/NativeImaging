@@ -1,15 +1,16 @@
 # encoding: utf-8
 """
-An Image-compatible backend using GraphicsMagick via ctypes
+An Image-compatible backend using GraphicsMagick
 """
 
 from copy import deepcopy
 
-import ctypes
-
 from NativeImaging.api import Image
 
-import wand_wrapper as wand
+try:
+    import wand_wrapper_cffi as wand
+except ImportError:
+    import wand_wrapper as wand
 
 
 class GraphicsMagickImage(Image):
@@ -37,11 +38,9 @@ class GraphicsMagickImage(Image):
         if isinstance(fp, basestring):
             wand.MagickReadImage(i._wand, fp)
         elif isinstance(fp, file):
-            i._c_file = c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-            wand.MagickReadImageFile(i._wand, c_file)
+            wand.MagickReadImageFile(i._wand, fp)
         elif hasattr(fp, "read"):
-            b = ctypes.create_string_buffer(fp.read())
-            wand.MagickReadImageBlob(i._wand, b, ctypes.sizeof(b))
+            wand.MagickReadImageBlob(i._wand, fp.read())
         else:
             raise IOError("Cannot open %r object" % fp)
 
@@ -118,11 +117,9 @@ class GraphicsMagickImage(Image):
         if isinstance(fp, basestring):
             wand.MagickWriteImage(self._wand, fp)
         elif isinstance(fp, file):
-            c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-            wand.MagickWriteImageFile(self._wand, c_file)
+            wand.MagickWriteImageFile(self._wand, fp)
         elif hasattr(fp, "write"):
-            length = ctypes.c_size_t()
-            data = wand.MagickWriteImageBlob(self._wand, ctypes.pointer(length))
-            fp.write(data[0:length.value])
+            data = wand.MagickWriteImageBlob(self._wand)
+            fp.write(data)
         else:
             raise ValueError("Don't know how to write to a %r" % fp)
