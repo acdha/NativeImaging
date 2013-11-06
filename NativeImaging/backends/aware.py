@@ -144,6 +144,9 @@ class AwareImage(Image):
     def open(cls, fp, mode="rb"):
         i = cls()
 
+        if isinstance(fp, basestring):
+            fp = open(fp, "rb")
+
         b = ctypes.create_string_buffer(fp.read())
         aw_j2k_set_input_image(i._j2k_object_p, b, ctypes.sizeof(b))
 
