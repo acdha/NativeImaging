@@ -37,15 +37,12 @@ class GraphicsMagickImage(Image):
     def open(cls, fp, mode="rb"):
         i = cls()
 
-        # TODO: move magic argument handling into the backend library so e.g. cffi's FILE* works
         if isinstance(fp, basestring):
             wand.MagickReadImage(i._wand, fp)
         elif isinstance(fp, file):
-            i._c_file = c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-            wand.MagickReadImageFile(i._wand, c_file)
+            wand.MagickReadImageFile(i._wand, fp)
         elif hasattr(fp, "read"):
-            b = ctypes.create_string_buffer(fp.read())
-            wand.MagickReadImageBlob(i._wand, b, ctypes.sizeof(b))
+            wand.MagickReadImageBlob(i._wand, fp.read())
         else:
             raise IOError("Cannot open %r object" % fp)
 
@@ -122,10 +119,9 @@ class GraphicsMagickImage(Image):
         if isinstance(fp, basestring):
             wand.MagickWriteImage(self._wand, fp)
         elif isinstance(fp, file):
-            # c_file = ctypes.pythonapi.PyFile_AsFile(fp)
+            c_file = ctypes.pythonapi.PyFile_AsFile(fp)
             wand.MagickWriteImageFile(self._wand, fp)
         elif hasattr(fp, "write"):
-            raise NotImplementedError
             length = ctypes.c_size_t()
             data = wand.MagickWriteImageBlob(self._wand, ctypes.pointer(length))
             fp.write(data[0:length.value])

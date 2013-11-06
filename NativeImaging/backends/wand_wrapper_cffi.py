@@ -36,6 +36,7 @@ def check_rc(f):
             return rc
     return inner
 
+
 def returns_string(f):
     """Decorator which ensures that char* objects return simply Python strings"""
 
@@ -125,7 +126,13 @@ CloneMagickWand = check_rc(_wand.CloneMagickWand)
 MagickStripImage = check_rc(_wand.MagickStripImage)
 
 MagickReadImage = check_rc(_wand.MagickReadImage)
-MagickReadImageBlob = check_rc(_wand.MagickReadImageBlob)
+
+
+@check_rc
+def MagickReadImageBlob(wand, blob):
+    b = ffi.new("unsigned char[]", blob)
+    return _wand.MagickReadImageBlob(wand, b, ffi.sizeof(b))
+
 MagickReadImageFile = check_rc(_wand.MagickReadImageFile)
 
 MagickSetImageFormat = check_rc(_wand.MagickSetImageFormat)

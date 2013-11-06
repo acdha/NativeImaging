@@ -103,15 +103,27 @@ MagickStripImage.argtypes = [WAND_P]
 MagickStripImage.restype = MagickBooleanType
 MagickStripImage.errcheck = _wand_errcheck
 
-MagickReadImageBlob = _wandlib.MagickReadImageBlob
-MagickReadImageBlob.restype = MagickBooleanType
-MagickReadImageBlob.argtypes = [WAND_P, ctypes.c_void_p, ctypes.c_size_t]
-MagickReadImageBlob.errcheck = _wand_errcheck
+# The file I/O functions are complicated by the need to convert Python-like
+# files into something compatible with ctypes or CFFI:
+_MagickReadImageBlob = _wandlib.MagickReadImageBlob
+_MagickReadImageBlob.restype = MagickBooleanType
+_MagickReadImageBlob.argtypes = [WAND_P, ctypes.c_void_p, ctypes.c_size_t]
+_MagickReadImageBlob.errcheck = _wand_errcheck
 
-MagickReadImageFile = _wandlib.MagickReadImageFile
-MagickReadImageFile.restype = MagickBooleanType
-MagickReadImageFile.argtypes = [WAND_P, FILE_P]
-MagickReadImageFile.errcheck = _wand_errcheck
+
+def MagickReadImageBlob(wand, blob):
+    b = ctypes.create_string_buffer(blob)
+    return _MagickReadImageBlob(wand, b, ctypes.sizeof(b))
+
+_MagickReadImageFile = _wandlib.MagickReadImageFile
+_MagickReadImageFile.restype = MagickBooleanType
+_MagickReadImageFile.argtypes = [WAND_P, FILE_P]
+_MagickReadImageFile.errcheck = _wand_errcheck
+
+
+def MagickReadImageFile(wand, fp):
+    c_file = ctypes.pythonapi.PyFile_AsFile(fp)
+    return _MagickReadImageFile(wand, c_file)
 
 MagickReadImage = _wandlib.MagickReadImage
 MagickReadImage.restype = MagickBooleanType
