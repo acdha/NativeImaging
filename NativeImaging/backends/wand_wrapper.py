@@ -30,7 +30,7 @@ def _wand_errcheck(rc, func, args):
         err_type = ExceptionType()
         description = MagickGetException(args[0], err_type)
 
-        if err_type.value == 430: # "Unable to open file"
+        if err_type.value == 430:  # "Unable to open file"
             raise IOError(description)
         else:
             raise WandException(description)
@@ -39,22 +39,22 @@ def _wand_errcheck(rc, func, args):
 
 # ENUM declarations:
 FilterTypes = {
-  'UndefinedFilter': 0,
-  'PointFilter': 1,
-  'BoxFilter': 2,
-  'TriangleFilter': 3,
-  'HermiteFilter': 4,
-  'HanningFilter': 5,
-  'HammingFilter': 6,
-  'BlackmanFilter': 7,
-  'GaussianFilter': 8,
-  'QuadraticFilter': 9,
-  'CubicFilter': 10,
-  'CatromFilter': 11,
-  'MitchellFilter': 12,
-  'LanczosFilter': 13,
-  'BesselFilter': 14,
-  'SincFilter': 15,
+    'UndefinedFilter': 0,
+    'PointFilter': 1,
+    'BoxFilter': 2,
+    'TriangleFilter': 3,
+    'HermiteFilter': 4,
+    'HanningFilter': 5,
+    'HammingFilter': 6,
+    'BlackmanFilter': 7,
+    'GaussianFilter': 8,
+    'QuadraticFilter': 9,
+    'CubicFilter': 10,
+    'CatromFilter': 11,
+    'MitchellFilter': 12,
+    'LanczosFilter': 13,
+    'BesselFilter': 14,
+    'SincFilter': 15,
 }
 
 
@@ -71,7 +71,7 @@ WAND_P = ctypes.POINTER(MagickWand)
 class FILE(ctypes.Structure):
     pass
 
-ExceptionType = ctypes.c_int # TODO: Expand enum choices
+ExceptionType = ctypes.c_int  # TODO: Expand enum choices
 MagickBooleanType = ctypes.c_uint
 
 FILE_P = ctypes.POINTER(FILE)
@@ -171,5 +171,5 @@ MagickResizeImage.errcheck = _wand_errcheck
 MagickCropImage = _wandlib.MagickCropImage
 MagickCropImage.restype = MagickBooleanType
 MagickCropImage.argtypes = [WAND_P, ctypes.c_ulong, ctypes.c_ulong,
-                              ctypes.c_ulong, ctypes.c_ulong]
+                            ctypes.c_ulong, ctypes.c_ulong]
 MagickCropImage.errcheck = _wand_errcheck

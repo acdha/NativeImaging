@@ -8,12 +8,12 @@ from distutils.errors import CCompilerError, DistutilsExecError, \
 
 
 if sys.platform == 'win32' and sys.version_info > (2, 6):
-   # 2.6's distutils.msvc9compiler can raise an IOError when failing to
-   # find the compiler
-   ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError,
-                 IOError)
+    # 2.6's distutils.msvc9compiler can raise an IOError when failing to
+    # find the compiler
+    ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError,
+                  IOError)
 else:
-   ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
+    ext_errors = (CCompilerError, DistutilsExecError, DistutilsPlatformError)
 
 
 class BuildFailed(Exception):
@@ -26,30 +26,26 @@ class ve_build_ext(build_ext):
     def run(self):
         try:
             build_ext.run(self)
-        except DistutilsPlatformError, x:
+        except DistutilsPlatformError:
             raise BuildFailed()
 
     def build_extension(self, ext):
         try:
             build_ext.build_extension(self, ext)
-        except ext_errors, x:
+        except ext_errors:
             raise BuildFailed()
 
 
 def run_aware_setup():
-   setup(name='aware',
-         description = 'a python wrapper for the Aware JPEG2000 library',
-         license = 'http://creativecommons.org/licenses/publicdomain/',
-         version='1.0',
-         ext_modules=[
-           Extension('_aware',
-                     ['./NativeImaging/backends/_aware.c'],
-                     libraries=['awj2k'])
-           ],
-         cmdclass={'build_ext': ve_build_ext},
-         )
+    setup(name='aware',
+          description='a python wrapper for the Aware JPEG2000 library',
+          license='http://creativecommons.org/licenses/publicdomain/',
+          version='1.0',
+          ext_modules=[Extension('_aware', ['./NativeImaging/backends/_aware.c'],
+                       libraries=['awj2k'])],
+          cmdclass={'build_ext': ve_build_ext})
 
-if __name__=="__main__":
+if __name__ == "__main__":
     try:
         run_aware_setup()
     except BuildFailed:

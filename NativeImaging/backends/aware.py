@@ -110,7 +110,7 @@ FULL_XFORM_FLAG = 0
 
 
 def scaled_dimension(progression_level, dimension):
-    scale_factor = 2<<(progression_level-1)
+    scale_factor = 2 << (progression_level - 1)
     return dimension / float(scale_factor)
 
 
@@ -179,7 +179,7 @@ class AwareImage(Image):
         width, height = int(size[0]), int(size[1])
         self.__resize = (width, height)
         aw_j2k_set_output_com_image_size(self._j2k_object_p, height, width,
-                                            AW_J2K_PRESERVE_ASPECT_RATIO_NO_PAD)
+                                         AW_J2K_PRESERVE_ASPECT_RATIO_NO_PAD)
         # TODO: remove preserve aspect ratio out into chronam code.
         return self.copy()
 
@@ -222,4 +222,3 @@ class AwareImage(Image):
 
     def save(self, fp, format="JPEG", **kwargs):
         return self.copy().save(fp, format, **kwargs)
-

@@ -122,8 +122,7 @@ class GraphicsMagickImage(Image):
             wand.MagickWriteImageFile(self._wand, c_file)
         elif hasattr(fp, "write"):
             length = ctypes.c_size_t()
-            data = wand.MagickWriteImageBlob(self._wand,
-                                                ctypes.pointer(length))
+            data = wand.MagickWriteImageBlob(self._wand, ctypes.pointer(length))
             fp.write(data[0:length.value])
         else:
             raise ValueError("Don't know how to write to a %r" % fp)

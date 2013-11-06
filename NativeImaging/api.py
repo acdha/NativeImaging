@@ -27,16 +27,16 @@ MESH = 4
 # resampling filters
 NONE = 0
 NEAREST = 0
-ANTIALIAS = 1 # 3-lobed lanczos
+ANTIALIAS = 1  # 3-lobed lanczos
 LINEAR = BILINEAR = 2
 CUBIC = BICUBIC = 3
 
 # dithers
 NONE = 0
 NEAREST = 0
-ORDERED = 1 # Not yet implemented
-RASTERIZE = 2 # Not yet implemented
-FLOYDSTEINBERG = 3 # default
+ORDERED = 1  # Not yet implemented
+RASTERIZE = 2  # Not yet implemented
+FLOYDSTEINBERG = 3  # default
 
 # palettes/quantizers
 WEB = 0
@@ -72,14 +72,14 @@ class Image(object):
         raise NotImplementedError()
 
     def __repr__(self):
-        return "%(module)s.%(classname)s(%(id)s) " \
-                "<%(width)sx%(height)s, mode=%(mode)s>" % dict(
-                    module=self.__class__.__module__,
-                    classname=self.__class__.__name__,
-                    mode=self.mode,
-                    width=self.size[0],
-                    height=self.size[1],
-                    id=id(self))
+        return "%(module)s.%(classname)s(%(id)s) <%(width)sx%(height)s, mode=%(mode)s>" % {
+            'module': self.__class__.__module__,
+            'classname': self.__class__.__name__,
+            'mode': self.mode,
+            'width': self.size[0],
+            'height': self.size[1],
+            'id': id(self)
+        }
 
     def copy(self):
         """
@@ -183,7 +183,7 @@ class Image(object):
 
         raise NotImplementedError()
 
-    def getdata(self, band = None):
+    def getdata(self, band=None):
         """Get image data as sequence object"""
         raise NotImplementedError()
 

@@ -100,10 +100,10 @@ class JavaImage(Image):
         # Since the scale & translate factors are passed using a generic-type
         # method we have to explicitly wrap them in java.lang.Float as the
         # default auto-bridged Double is not supported:
-        pb.add(Float(width / self._image.getWidth())) # x scale factor
-        pb.add(Float(height / self._image.getHeight())) # y scale factor
-        pb.add(Float(0.0)) # x translation
-        pb.add(Float(0.0)) # y translation
+        pb.add(Float(width / self._image.getWidth()))    # x scale factor
+        pb.add(Float(height / self._image.getHeight()))  # y scale factor
+        pb.add(Float(0.0))                               # x translation
+        pb.add(Float(0.0))                               # y translation
         pb.add(Interpolation.getInstance(resample))
 
         # Possible quality tweaks we might want to expose:

@@ -16,7 +16,7 @@ MAX_PROGRESSION_LEVEL = 6
 
 
 def scaled_dimension(progression_level, dimension):
-    scale_factor = 2<<(progression_level-1)
+    scale_factor = 2 << (progression_level - 1)
     return dimension / float(scale_factor)
 
 
@@ -89,7 +89,7 @@ class AwareImage(Image):
             _aware.j2k_set_input_j2k_resolution_level(self._j2k_object_p,
                                                       level)
             _aware.j2k_set_input_j2k_region_level(self._j2k_object_p,
-            x1, y1, x2, y2)
+                                                  x1, y1, x2, y2)
 
         if self.__resize:
             width, height = self.__resize
@@ -97,13 +97,13 @@ class AwareImage(Image):
                 _aware.j2k_set_output_com_image_size(self._j2k_object_p,
                                                      height, width,
                                                      AW_J2K_MODIFY_ASPECT_RATIO)
-            except _aware.error, e:
+            except _aware.error:
                 pass
 
         result = _aware.j2k_get_output_image_raw(self._j2k_object_p)
         rows, cols, nChannels, bpp, data = result
         image = PILImage.frombuffer("L", (cols, rows), data, "raw", "L", 0, 1)
-        if self.__resize and image.size!=self.__resize:
+        if self.__resize and image.size != self.__resize:
             image.resize((width, height))
         return image
 
@@ -111,7 +111,7 @@ class AwareImage(Image):
         return self.copy().save(fp, format, **kwargs)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     from NativeImaging.backends.aware_cext import AwareImage as Image
 
     from urllib2 import urlopen
