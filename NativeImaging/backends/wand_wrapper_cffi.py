@@ -127,20 +127,23 @@ MagickStripImage = check_rc(_wand.MagickStripImage)
 
 MagickReadImage = check_rc(_wand.MagickReadImage)
 
+# The file I/O functions are complicated by the need to convert Python-like
+# files into something compatible with ctypes or CFFI:
 
 @check_rc
 def MagickReadImageBlob(wand, blob):
+    # TODO: figure out how to get a buffer view of a string and pass that directly:
     b = ffi.new("unsigned char[]", blob)
     return _wand.MagickReadImageBlob(wand, b, ffi.sizeof(b))
 
 MagickReadImageFile = check_rc(_wand.MagickReadImageFile)
 
-MagickSetImageFormat = check_rc(_wand.MagickSetImageFormat)
-MagickSetCompressionQuality = check_rc(_wand.MagickSetCompressionQuality)
-
 MagickWriteImage = check_rc(_wand.MagickWriteImage)
 MagickWriteImagesFile = check_rc(_wand.MagickWriteImagesFile)
 MagickWriteImageFile = check_rc(_wand.MagickWriteImageFile)
+
+MagickSetImageFormat = check_rc(_wand.MagickSetImageFormat)
+MagickSetCompressionQuality = check_rc(_wand.MagickSetCompressionQuality)
 
 MagickScaleImage = check_rc(_wand.MagickScaleImage)
 MagickResizeImage = check_rc(_wand.MagickResizeImage)

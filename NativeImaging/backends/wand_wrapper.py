@@ -125,6 +125,32 @@ def MagickReadImageFile(wand, fp):
     c_file = ctypes.pythonapi.PyFile_AsFile(fp)
     return _MagickReadImageFile(wand, c_file)
 
+MagickWriteImage = _wandlib.MagickWriteImage
+MagickWriteImage.restype = MagickBooleanType
+MagickWriteImage.argtypes = [WAND_P, ctypes.c_char_p]
+MagickWriteImage.errcheck = _wand_errcheck
+
+_MagickWriteImageBlob = _wandlib.MagickWriteImageBlob
+_MagickWriteImageBlob.restype = ctypes.POINTER(ctypes.c_char)
+_MagickWriteImageBlob.argtypes = [WAND_P, ctypes.POINTER(ctypes.c_size_t)]
+_MagickWriteImageBlob.errcheck = _wand_errcheck
+
+
+def MagickWriteImageBlob(wand):
+    length = ctypes.c_size_t()
+    data = _MagickWriteImageBlob(wand, ctypes.pointer(length))
+    return data[0:length.value]
+
+_MagickWriteImageFile = _wandlib.MagickWriteImageFile
+_MagickWriteImageFile.restype = MagickBooleanType
+_MagickWriteImageFile.argtypes = [WAND_P, FILE_P]
+_MagickWriteImageFile.errcheck = _wand_errcheck
+
+
+def MagickWriteImageFile(wand, fp):
+    c_file = ctypes.pythonapi.PyFile_AsFile(fp)
+    _MagickWriteImageFile(wand, c_file)
+
 MagickReadImage = _wandlib.MagickReadImage
 MagickReadImage.restype = MagickBooleanType
 MagickReadImage.argtypes = [WAND_P, ctypes.c_char_p]
@@ -154,21 +180,6 @@ MagickSetCompressionQuality = _wandlib.MagickSetCompressionQuality
 MagickSetCompressionQuality.restype = MagickBooleanType
 MagickSetCompressionQuality.argtypes = [WAND_P, ctypes.c_ulong]
 MagickSetCompressionQuality.errcheck = _wand_errcheck
-
-MagickWriteImage = _wandlib.MagickWriteImage
-MagickWriteImage.restype = MagickBooleanType
-MagickWriteImage.argtypes = [WAND_P, ctypes.c_char_p]
-MagickWriteImage.errcheck = _wand_errcheck
-
-MagickWriteImageBlob = _wandlib.MagickWriteImageBlob
-MagickWriteImageBlob.restype = ctypes.POINTER(ctypes.c_char)
-MagickWriteImageBlob.argtypes = [WAND_P, ctypes.POINTER(ctypes.c_size_t)]
-MagickWriteImageBlob.errcheck = _wand_errcheck
-
-MagickWriteImageFile = _wandlib.MagickWriteImageFile
-MagickWriteImageFile.restype = MagickBooleanType
-MagickWriteImageFile.argtypes = [WAND_P, FILE_P]
-MagickWriteImageFile.errcheck = _wand_errcheck
 
 MagickScaleImage = _wandlib.MagickScaleImage
 MagickScaleImage.restype = MagickBooleanType

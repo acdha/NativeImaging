@@ -5,8 +5,6 @@ An Image-compatible backend using GraphicsMagick
 
 from copy import deepcopy
 
-import ctypes
-
 from NativeImaging.api import Image
 
 try:
@@ -119,11 +117,9 @@ class GraphicsMagickImage(Image):
         if isinstance(fp, basestring):
             wand.MagickWriteImage(self._wand, fp)
         elif isinstance(fp, file):
-            c_file = ctypes.pythonapi.PyFile_AsFile(fp)
             wand.MagickWriteImageFile(self._wand, fp)
         elif hasattr(fp, "write"):
-            length = ctypes.c_size_t()
-            data = wand.MagickWriteImageBlob(self._wand, ctypes.pointer(length))
-            fp.write(data[0:length.value])
+            data = wand.MagickWriteImageBlob(self._wand)
+            fp.write(data)
         else:
             raise ValueError("Don't know how to write to a %r" % fp)
