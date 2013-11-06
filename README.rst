@@ -36,6 +36,10 @@ and saving the result. Testing reveals mixed results, beating PIL when
 producing thumbnails from large TIFFs and underperforming when thumbnailing
 equivalent JPEGs, both by about 2:1.
 
+Both CPython and PyPy are supported, with PyPy seeing performance gains using the CFFI backend instead of
+ctypes. Significant optimization gains are likely possible, particularly where the I/O functions marshall
+data in and out of the non-filename-based APIs where data is currently being copied.
+
 Jython
 ~~~~~~
 
