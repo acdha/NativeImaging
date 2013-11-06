@@ -28,9 +28,7 @@ def check_rc(f):
             desc_cdata = _wand.MagickGetException(args[0], err_type)
             description = ffi.string(desc_cdata)
 
-            print err_type[0], description
-
-            if err_type[0] == '#430':  # "Unable to open file"
+            if err_type[0] == 430:  # "Unable to open file"
                 raise IOError(description)
             else:
                 raise WandException(description)
