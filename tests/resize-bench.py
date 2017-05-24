@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 """Compare performance of the available backends
 """
-from collections import defaultdict
-from optparse import OptionParser
-from time import time
+from __future__ import absolute_import, division, print_function
+
+from __future__ import absolute_import
+from __future__ import print_function
 import logging
 import os
 import sys
 import tempfile
+from collections import defaultdict
+from optparse import OptionParser
+from time import time
 
 from NativeImaging import get_image_class
 
@@ -50,14 +54,14 @@ def run_benchmark(backend_names, sample_dir=None, output_dir=None):
         try:
             backends[backend_name] = get_image_class(backend_name)
         except (ImportError, KeyError):
-            print >> sys.stderr, "Can't load %s backend" % backend_name
+            print("Can't load %s backend" % backend_name, file=sys.stderr)
 
     times = defaultdict(dict)
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    print "Comparison images are saved in %s" % output_dir
+    print("Comparison images are saved in %s" % output_dir)
 
     for filename in os.listdir(sample_dir):
         if filename.startswith("."):
@@ -90,15 +94,16 @@ def run_benchmark(backend_names, sample_dir=None, output_dir=None):
                 logging.exception("%s: exception processing %s", backend_name,
                                   filename)
 
-    print
-    print "Results"
-    print
+    print()
+    print("Results")
+    print()
 
     for f_name, scores in times.items():
-        print "%s:" % f_name
+        print("%s:" % f_name)
         for lib, elapsed in scores.items():
-            print "\t%16s: %0.2f" % (lib, elapsed)
-        print
+            print("\t%16s: %0.2f" % (lib, elapsed))
+        print()
+
 
 if __name__ == "__main__":
     main()

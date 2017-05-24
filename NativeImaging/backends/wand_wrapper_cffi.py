@@ -5,6 +5,7 @@ cffi wrappers for GraphicsMagick functions with error-handling
 n.b. Heavy consultation of http://www.graphicsmagick.org/wand/magick_wand.html
 and the cffi documentation is advised
 """
+from __future__ import absolute_import, division, print_function
 
 from functools import wraps
 import sys
@@ -107,10 +108,11 @@ def pkgconfig(*packages, **kw):
             kw.setdefault('extra_link_args', []).append(token)
 
     # Remove duplicates:
-    for k, v in kw.iteritems():
+    for k, v in kw.items():
         kw[k] = list(set(v))
 
     return kw
+
 
 _wand = ffi.verify("""
 #include <wand/magick_wand.h>

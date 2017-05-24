@@ -1,7 +1,12 @@
 # encoding: utf-8
 
+from __future__ import absolute_import, division, print_function
+
 import os
 import tempfile
+import sys
+
+from io import BytesIO
 
 SAMPLE_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "samples"))
 
@@ -14,33 +19,38 @@ class ApiConformanceTests(object):
     Subclasses *must* define self.IMAGE_CLASS
     """
 
-    def test_open(self):
-        sample_jpg = os.path.join(SAMPLE_DIR, "5071384885_c5f331d337_b.jpg")
+    def setUp(self):
+        super(ApiConformanceTests, self).setUp()
 
+        self.sample_jpg = os.path.join(SAMPLE_DIR, "5071384885_c5f331d337_b.jpg")
+
+    def test_open_filename(self):
         # Accepts filenames:
-        img = self.IMAGE_CLASS.open(sample_jpg)
+        img = self.IMAGE_CLASS.open(self.sample_jpg)
         self.assertTrue(img)
 
         self.assertRaises(IOError, self.IMAGE_CLASS.open, "this test image does not exist.jpg")
 
-        # Accepts file objects:
-        img = self.IMAGE_CLASS.open(file(sample_jpg))
+    def test_open_file_pointer(self):
+        with open(self.sample_jpg, 'rb') as f:
+            img = self.IMAGE_CLASS.open(f)
         self.assertTrue(img)
 
-        # … and file-like objects:
-        from StringIO import StringIO
-        img = self.IMAGE_CLASS.open(StringIO(file(sample_jpg).read()))
+    def test_open_filelike_objects(self):
+        with open(self.sample_jpg, 'rb') as f:
+            bytes_io = BytesIO(f.read())
+        img = self.IMAGE_CLASS.open(bytes_io)
         self.assertTrue(img)
 
     def open_sample_image(self):
         """Convenience method to return an open Image"""
         sample_jpg = os.path.join(SAMPLE_DIR, "5071384885_c5f331d337_b.jpg")
-        return self.IMAGE_CLASS.open(sample_jpg)
+        return self.IMAGE_CLASS.open(self.sample_jpg)
 
-    def test_save(self):
+    def test_save_as_jpeg(self):
         """Test of basic image saving"""
         img = self.open_sample_image()
-        img.save(tempfile.TemporaryFile(), format="PNG")
+        img.save(tempfile.TemporaryFile(), format="JPEG")
 
     def test_save_with_quality(self):
         """Test of basic image saving"""
@@ -48,12 +58,12 @@ class ApiConformanceTests(object):
         img.save(tempfile.TemporaryFile(), format="JPEG", quality=75)
 
     def test_size(self):
-        self.assertEqual(self.open_sample_image().size, (1024L, 680L))
+        self.assertEqual(self.open_sample_image().size, (1024, 680))
 
     def test_repr(self):
         self.assertNotEqual(0, len(repr(self.open_sample_image())))
 
-    def test_save(self):
+    def test_save_as_png(self):
         """Test of basic image saving"""
         img = self.open_sample_image()
         img.save(tempfile.TemporaryFile(), format="PNG")
@@ -78,7 +88,7 @@ class ApiConformanceTests(object):
         # Confirm that width & height were modified correctly: unlike
         # resize the image shouldn't be stretched so only one of our provided
         # values will be the same:
-        self.assertEqual(img.size, (128L, 85L))
+        self.assertEqual(img.size, (128, 85))
 
     def disabled_new_image(self):
         # TODO: Implement Image.new and enable this test
@@ -96,7 +106,7 @@ class ApiConformanceTests(object):
         self.assertEqual(_info(self.IMAGE_CLASS.new("P", (128, 128))), (None, 'P', (128, 128)))
 
         # truecolor
-        self.assertEqual( _info(self.IMAGE_CLASS.new("RGB", (128, 128))), (None, 'RGB', (128, 128)))
+        self.assertEqual(_info(self.IMAGE_CLASS.new("RGB", (128, 128))), (None, 'RGB', (128, 128)))
 
         # 32-bit integer
         self.assertEqual(_info(self.IMAGE_CLASS.new("I", (128, 128))), (None, 'I', (128, 128)))
@@ -110,8 +120,8 @@ class ApiConformanceTests(object):
 
     def test_rotate_90(self):
         img = self.open_sample_image()
-        self.assertEqual(img.rotate(90).size, (680L, 1024L))
+        self.assertEqual(img.rotate(90).size, (680, 1024))
 
     def test_rotate_arb(self):
         img = self.open_sample_image()
-        self.assertEqual(img.rotate(43).size, (1024L, 680L))
+        self.assertEqual(img.rotate(43).size, (1024, 680))

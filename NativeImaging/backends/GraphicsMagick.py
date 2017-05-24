@@ -8,9 +8,9 @@ from copy import deepcopy
 from NativeImaging.api import Image
 
 try:
-    import wand_wrapper_cffi as wand
+    from . import wand_wrapper_cffi as wand
 except ImportError:
-    import wand_wrapper as wand
+    from . import wand_wrapper as wand
 
 
 class GraphicsMagickImage(Image):

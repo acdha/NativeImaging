@@ -76,7 +76,8 @@ MagickBooleanType = ctypes.c_uint
 
 FILE_P = ctypes.POINTER(FILE)
 
-# TODO: Is there a way to load this without configuring a global library?
+# TODO: replace this with a call to get `fileno` and pass that to libc's `fdopen`
+
 ctypes.pythonapi.PyFile_AsFile.argtypes = (ctypes.py_object, )
 ctypes.pythonapi.PyFile_AsFile.restype = FILE_P
 
