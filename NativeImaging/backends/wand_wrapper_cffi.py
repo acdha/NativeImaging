@@ -48,6 +48,38 @@ def returns_string(f):
     return inner
 
 
+def get_pkgconfig(*packages, **kw):
+    # See http://code.activestate.com/recipes/502261-python-distutils-pkg-config/
+    from subprocess import check_output
+
+    flag_map = {'-I': 'include_dirs',
+                '-L': 'library_dirs',
+                '-l': 'libraries'}
+
+    cmd = ["pkg-config", "--libs", "--cflags"]
+    cmd.extend(packages)
+
+    for token in check_output(cmd).decode('utf-8').split():
+        flag = token[:2]
+        if flag in flag_map:
+            kw.setdefault(flag_map.get(flag), []).append(token[2:])
+        else:
+            # throw others to extra_link_args
+            kw.setdefault('extra_link_args', []).append(token)
+
+    # Remove duplicates:
+    for k, v in kw.items():
+        kw[k] = list(set(v))
+
+    return kw
+
+
+pkgconfig = get_pkgconfig('GraphicsMagickWand')
+
+ffi.set_source('_wand_wrapper', """
+#include <wand/magick_wand.h>
+""", **pkgconfig)
+
 ffi.cdef("""
     struct _MagickWand; typedef struct _MagicWand MagickWand;
     typedef enum { ... } ExceptionType;
@@ -87,38 +119,11 @@ ffi.cdef("""
                                   const unsigned long height, const long x, const long y );
 """)
 
+ffi.compile(verbose=True)
 
-def pkgconfig(*packages, **kw):
-    # See http://code.activestate.com/recipes/502261-python-distutils-pkg-config/
-    from subprocess import check_output
+from _wand_wrapper import lib as _wand
 
-    flag_map = {'-I': 'include_dirs',
-                '-L': 'library_dirs',
-                '-l': 'libraries'}
-
-    cmd = ["pkg-config", "--libs", "--cflags"]
-    cmd.extend(packages)
-
-    for token in check_output(cmd).decode('utf-8').split():
-        flag = token[:2]
-        if flag in flag_map:
-            kw.setdefault(flag_map.get(flag), []).append(token[2:])
-        else:
-            # throw others to extra_link_args
-            kw.setdefault('extra_link_args', []).append(token)
-
-    # Remove duplicates:
-    for k, v in kw.items():
-        kw[k] = list(set(v))
-
-    return kw
-
-
-_wand = ffi.verify("""
-#include <wand/magick_wand.h>
-""", **pkgconfig('GraphicsMagickWand'))
-
-_wand.InitializeMagick(sys.argv[0])
+_wand.InitializeMagick(ffi.NULL)
 
 DestroyMagickWand = _wand.DestroyMagickWand
 
