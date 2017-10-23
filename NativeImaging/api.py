@@ -401,7 +401,6 @@ class Image(object):
            input image.
         :rtype: :class:Image object
         """
-
         raise NotImplementedError()
 
     def save(self, fp, format=None, **params):

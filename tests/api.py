@@ -4,7 +4,6 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import tempfile
-import sys
 
 from io import BytesIO
 
@@ -44,7 +43,6 @@ class ApiConformanceTests(object):
 
     def open_sample_image(self):
         """Convenience method to return an open Image"""
-        sample_jpg = os.path.join(SAMPLE_DIR, "5071384885_c5f331d337_b.jpg")
         return self.IMAGE_CLASS.open(self.sample_jpg)
 
     def test_save_as_jpeg(self):
@@ -120,8 +118,12 @@ class ApiConformanceTests(object):
 
     def test_rotate_90(self):
         img = self.open_sample_image()
-        self.assertEqual(img.rotate(90).size, (680, 1024))
+        self.assertEqual(img.size, (1024, 680))
+
+        self.assertEqual(img.rotate(90).size, (1024, 680))
+        self.assertEqual(img.rotate(90, expand=True).size, (680, 1024))
 
     def test_rotate_arb(self):
         img = self.open_sample_image()
+        self.assertEqual(img.size, (1024, 680))
         self.assertEqual(img.rotate(43).size, (1024, 680))
