@@ -99,7 +99,7 @@ def pkgconfig(*packages, **kw):
     cmd = ["pkg-config", "--libs", "--cflags"]
     cmd.extend(packages)
 
-    for token in check_output(cmd).split():
+    for token in check_output(cmd).decode('utf-8').split():
         flag = token[:2]
         if flag in flag_map:
             kw.setdefault(flag_map.get(flag), []).append(token[2:])

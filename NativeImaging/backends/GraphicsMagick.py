@@ -4,6 +4,7 @@ An Image-compatible backend using GraphicsMagick
 """
 
 from copy import deepcopy
+import sys
 
 from NativeImaging.api import Image
 
@@ -11,6 +12,11 @@ try:
     from . import wand_wrapper_cffi as wand
 except ImportError:
     from . import wand_wrapper as wand
+
+if sys.version_info >= (3, ):
+    basestring = str
+else:
+    pass
 
 
 class GraphicsMagickImage(Image):
