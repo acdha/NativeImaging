@@ -8,7 +8,6 @@ and the cffi documentation is advised
 from __future__ import absolute_import, division, print_function
 
 from functools import wraps
-import sys
 
 from cffi import FFI
 
@@ -24,7 +23,8 @@ def check_rc(f):
     def inner(*args):
         rc = f(*args)
         if not rc:
-            err_type = ffi.new("ExceptionType *")
+            from _wand_wrapper import ffi as wand_ffi
+            err_type = wand_ffi.new("ExceptionType *")
 
             desc_cdata = _wand.MagickGetException(args[0], err_type)
             description = ffi.string(desc_cdata)
@@ -134,14 +134,16 @@ MagickStripImage = check_rc(_wand.MagickStripImage)
 
 MagickReadImage = check_rc(_wand.MagickReadImage)
 
-# The file I/O functions are complicated by the need to convert Python-like
-# files into something compatible with ctypes or CFFI:
 
 @check_rc
 def MagickReadImageBlob(wand, blob):
+    # The file I/O functions are complicated by the need to convert Python-like
+    # files into something compatible with ctypes or CFFI:
+
     # TODO: figure out how to get a buffer view of a string and pass that directly:
     b = ffi.new("unsigned char[]", blob)
     return _wand.MagickReadImageBlob(wand, b, ffi.sizeof(b))
+
 
 MagickReadImageFile = check_rc(_wand.MagickReadImageFile)
 
