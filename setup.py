@@ -1,17 +1,9 @@
 from setuptools import setup
 import os
 
-from setup_aware_cext import run_aware_setup, BuildFailed
 
 def read_file(fn):
     return open(os.path.join(os.path.dirname(__file__), fn)).read()
-
-
-try:
-    run_aware_setup()
-except BuildFailed:
-    print '*' * 75
-    print "WARNING: Unable to install _aware"
 
 
 setup(

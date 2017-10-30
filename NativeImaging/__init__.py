@@ -1,3 +1,9 @@
+# from __future__ import absolute_import
+# encoding: utf-8
+
+from warnings import warn
+
+
 def get_image_class(backend):
     """
     Returns the Image class for the specified backend
@@ -9,19 +15,19 @@ def get_image_class(backend):
     """
 
     if backend == "aware":
-        from backends.aware import AwareImage
+        from .backends.aware import AwareImage
         return AwareImage
     if backend == "aware_cext":
-        from backends.aware_cext import AwareImage
+        warn('The "aware_cext" backend should just be "aware"', DeprecationWarning)
+        from .backends.aware import AwareImage
         return AwareImage
     elif backend.lower() == "graphicsmagick":
-        from backends.GraphicsMagick import GraphicsMagickImage
+        from .backends.GraphicsMagick import GraphicsMagickImage
         return GraphicsMagickImage
     elif backend.lower() == "java":
-        from backends.java import JavaImage
+        from .backends.java import JavaImage
         return JavaImage
     elif backend.lower() == "pil":
-        # Useful only for benchmarking:
         from PIL import Image
         return Image
     else:

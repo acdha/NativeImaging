@@ -22,8 +22,8 @@ Status
    :alt: Build Status
    :target: http://travis-ci.org/acdha/NativeImaging
 
-aware and aware_cext
-~~~~~~~~~~~~~~~~~~~~
+aware
+~~~~~
 
 Very fast JPEG 2000 thumbnail generation compared to GraphicsMagick. Requires
 the non-OSS AWARE library: http://www.aware.com/imaging/jpeg2000.htm

@@ -1,2 +1,1 @@
-include setup_aware_cext.py
 include README.rst
