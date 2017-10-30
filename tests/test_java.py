@@ -1,10 +1,14 @@
 #!/usr/bin/env jython
 
 import unittest
+import platform
+
+if platform.python_implementation() != 'Jython':
+    raise unittest.SkipTest('JAI tests are only run on Jython')
 
 from NativeImaging.backends.java import JavaImage
 
-from api import ApiConformanceTests
+from .api import ApiConformanceTests
 
 
 class JavaImageTests(ApiConformanceTests, unittest.TestCase):
@@ -22,4 +26,3 @@ class JavaImageTests(ApiConformanceTests, unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
