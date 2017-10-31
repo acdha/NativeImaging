@@ -4,9 +4,9 @@ An Image-compatible backend using GraphicsMagick
 """
 from __future__ import absolute_import, division, print_function
 
+import sys
 from copy import deepcopy
 from io import FileIO
-import sys
 
 from NativeImaging.api import Image
 

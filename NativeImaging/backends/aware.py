@@ -2,12 +2,11 @@
 An Image-compatible backend using Aware via ctypes
 """
 
-from ctypes.util import find_library
 import ctypes
+from ctypes.util import find_library
 
-from PIL import Image as PILImage
 from NativeImaging.api import Image
-
+from PIL import Image as PILImage
 
 _path = find_library("awj2k")
 

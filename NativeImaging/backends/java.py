@@ -10,10 +10,10 @@ http://stackoverflow.com/questions/4470958/why-does-loading-this-jpg-using-javai
 
 from __future__ import absolute_import, division
 
-from copy import deepcopy
-from array import array
 import math
 import sys
+from array import array
+from copy import deepcopy
 
 from com.sun.media.jai.codec import ByteArraySeekableStream
 from java.awt.image.renderable import ParameterBlock
@@ -21,7 +21,6 @@ from java.io import ByteArrayOutputStream
 from java.lang import Float
 from javax.media.jai import JAI, Interpolation
 from javax.media.jai.operator import TransposeDescriptor
-
 from NativeImaging.api import Image
 
 

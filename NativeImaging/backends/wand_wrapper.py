@@ -6,9 +6,9 @@ n.b. Heavy consultation of http://www.graphicsmagick.org/wand/magick_wand.html
 and the ctypes documentation is advised
 """
 
-from ctypes.util import find_library
 import ctypes
 import sys
+from ctypes.util import find_library
 
 _wandlib_path = find_library("GraphicsMagickWand")
 
