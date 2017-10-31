@@ -3,15 +3,13 @@
 """
 from __future__ import absolute_import, division, print_function
 
-from __future__ import absolute_import
-from __future__ import print_function
 import logging
 import os
 import sys
 import tempfile
 from collections import defaultdict
 from optparse import OptionParser
-from time import time
+from timeit import default_timer
 
 from NativeImaging import get_image_class
 
@@ -71,37 +69,42 @@ def run_benchmark(backend_names, sample_dir=None, output_dir=None):
 
         for backend_name, backend_class in backends.items():
             logging.info("Resizing %s using %s", filename, backend_name)
-            start_time = time()
 
-            try:
-                master = backend_class.open(os.path.join(sample_dir, filename))
+            for _ in range(0, 5):
+                try:
+                    start_time = default_timer()
 
-                master.thumbnail((256, 256), backend_class.ANTIALIAS)
+                    master = backend_class.open(os.path.join(sample_dir, filename))
 
-                output_file = os.path.join(output_dir,
-                                           "%s_%s.jpg" % (basename, backend_name))
+                    master.thumbnail((256, 256), backend_class.ANTIALIAS)
 
-                master.save(open(output_file, "wb"), "JPEG")
+                    output_file = os.path.join(output_dir,
+                                               "%s_%s.jpg" % (basename, backend_name))
 
-                times[filename][backend_name] = time() - start_time
+                    master.save(open(output_file, "wb"), "JPEG")
 
-            # This allows us to use a blanket except below which has the nice
-            # property of catching direct Exception subclasses and things like
-            # java.lang.Exception subclasses on Jython:
-            except SystemExit:
-                sys.exit(1)
-            except:
-                logging.exception("%s: exception processing %s", backend_name,
-                                  filename)
+                    elapsed_time = default_timer() - start_time
+
+                    times[filename].setdefault(backend_name, []).append(elapsed_time)
+
+                except SystemExit:
+                    # This allows us to use a blanket except below which has the nice
+                    # property of catching direct Exception subclasses and things like
+                    # java.lang.Exception subclasses on Jython:
+                    sys.exit(1)
+                except:
+                    logging.exception("%s: exception processing %s", backend_name,
+                                      filename)
+                    raise
 
     print()
-    print("Results")
+    print("Best and worst times in seconds")
     print()
 
     for f_name, scores in times.items():
         print("%s:" % f_name)
-        for lib, elapsed in scores.items():
-            print("\t%16s: %0.2f" % (lib, elapsed))
+        for lib, elapsed_times in scores.items():
+            print("\t%16s:\t%04.2f\t%04.2f" % (lib, min(elapsed_times), max(elapsed_times)))
         print()
 
 
