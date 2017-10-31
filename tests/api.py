@@ -4,7 +4,6 @@ from __future__ import absolute_import, division, print_function
 
 import os
 import tempfile
-
 from io import BytesIO
 
 SAMPLE_DIR = os.path.realpath(os.path.join(os.path.dirname(__file__), "samples"))
@@ -48,12 +47,14 @@ class ApiConformanceTests(object):
     def test_save_as_jpeg(self):
         """Test of basic image saving"""
         img = self.open_sample_image()
-        img.save(tempfile.TemporaryFile(), format="JPEG")
+        with tempfile.TemporaryFile() as f:
+            img.save(f, format="JPEG")
 
     def test_save_with_quality(self):
         """Test of basic image saving"""
         img = self.open_sample_image()
-        img.save(tempfile.TemporaryFile(), format="JPEG", quality=75)
+        with tempfile.TemporaryFile() as f:
+            img.save(f, format="JPEG", quality=75)
 
     def test_size(self):
         self.assertEqual(self.open_sample_image().size, (1024, 680))
@@ -64,7 +65,8 @@ class ApiConformanceTests(object):
     def test_save_as_png(self):
         """Test of basic image saving"""
         img = self.open_sample_image()
-        img.save(tempfile.TemporaryFile(), format="PNG")
+        with tempfile.TemporaryFile() as f:
+            img.save(f, format="PNG")
 
     def test_resize(self):
         img = self.open_sample_image()
