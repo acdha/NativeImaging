@@ -2,8 +2,9 @@ from __future__ import absolute_import, division, print_function
 
 import unittest
 
-from .api import ApiConformanceTests
 from NativeImaging import get_image_class
+
+from .api import ApiConformanceTests
 
 
 class PILTests(ApiConformanceTests, unittest.TestCase):
