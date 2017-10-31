@@ -18,6 +18,8 @@ if not _wandlib_path:
 _wandlib = ctypes.CDLL(_wandlib_path)
 _wandlib.InitializeMagick(sys.argv[0])
 
+libc = ctypes.CDLL(find_library("libc"))
+
 
 def _wand_errcheck(rc, func, args):
     """
@@ -79,10 +81,16 @@ MagickBooleanType = ctypes.c_uint
 
 FILE_P = ctypes.POINTER(FILE)
 
-# TODO: replace this with a call to get `fileno` and pass that to libc's `fdopen`
+# C definition:
+# FILE *fdopen(int fd, const char *mode);
+fdopen = libc.fdopen
+fdopen.argtypes = (ctypes.c_int, ctypes.c_char_p)
+fdopen.restype = FILE_P
 
-ctypes.pythonapi.PyFile_AsFile.argtypes = (ctypes.py_object, )
-ctypes.pythonapi.PyFile_AsFile.restype = FILE_P
+
+def c_file_from_py_file(py_file, flags):
+    return fdopen(py_file.fileno(), flags)
+
 
 MagickGetException = _wandlib.MagickGetException
 MagickGetException.restype = ctypes.c_char_p
@@ -127,8 +135,7 @@ _MagickReadImageFile.errcheck = _wand_errcheck
 
 
 def MagickReadImageFile(wand, fp):
-    c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-    return _MagickReadImageFile(wand, c_file)
+    return _MagickReadImageFile(wand, c_file_from_py_file(fp, b'rb'))
 
 
 MagickWriteImage = _wandlib.MagickWriteImage
@@ -155,8 +162,7 @@ _MagickWriteImageFile.errcheck = _wand_errcheck
 
 
 def MagickWriteImageFile(wand, fp):
-    c_file = ctypes.pythonapi.PyFile_AsFile(fp)
-    _MagickWriteImageFile(wand, c_file)
+    _MagickWriteImageFile(wand, c_file_from_py_file(fp, b'wb'))
 
 
 MagickReadImage = _wandlib.MagickReadImage

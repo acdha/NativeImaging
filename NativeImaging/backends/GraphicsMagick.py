@@ -2,8 +2,10 @@
 """
 An Image-compatible backend using GraphicsMagick
 """
+from __future__ import absolute_import, division, print_function
 
 from copy import deepcopy
+from io import FileIO
 import sys
 
 from NativeImaging.api import Image
@@ -14,6 +16,16 @@ if sys.version_info >= (3, ):
     basestring = str
 else:
     pass
+
+DEFAULT_ENCODING = sys.getdefaultencoding()
+FILESYSTEM_ENCODING = sys.getfilesystemencoding()
+
+
+def force_bytes(i):
+    if isinstance(i, bytes):
+        return i
+    else:
+        return i.encode(DEFAULT_ENCODING)
 
 
 class GraphicsMagickImage(Image):
@@ -39,8 +51,10 @@ class GraphicsMagickImage(Image):
         i = cls()
 
         if isinstance(fp, basestring):
+            wand_wrapper.MagickReadImage(i._wand, fp.encode(FILESYSTEM_ENCODING))
+        elif isinstance(fp, bytes):
             wand_wrapper.MagickReadImage(i._wand, fp)
-        elif isinstance(fp, file):
+        elif isinstance(fp, FileIO):
             wand_wrapper.MagickReadImageFile(i._wand, fp)
         elif hasattr(fp, "read"):
             wand_wrapper.MagickReadImageBlob(i._wand, fp.read())
@@ -76,11 +90,11 @@ class GraphicsMagickImage(Image):
         width, height = self.size
 
         if width > size[0]:
-            height = max(height * size[0] / width, 1)
+            height = max(height * size[0] // width, 1)
             width = size[0]
 
         if height > size[1]:
-            width = max(width * size[1] / height, 1)
+            width = max(width * size[1] // height, 1)
             height = size[1]
 
         wand_wrapper.MagickStripImage(self._wand)
@@ -110,16 +124,18 @@ class GraphicsMagickImage(Image):
 
         return im
 
-    def save(self, fp, format="JPEG", **kwargs):
+    def save(self, fp, format=b"JPEG", **kwargs):
         if 'quality' in kwargs:
             wand_wrapper.MagickSetCompressionQuality(self._wand, kwargs['quality'])
 
+        # Python 3 means anything string-like needs encoding before calling C:
+        format = force_bytes(format)
         wand_wrapper.MagickSetImageFormat(self._wand, format)
         assert format == wand_wrapper.MagickGetImageFormat(self._wand)
 
         if isinstance(fp, basestring):
             wand_wrapper.MagickWriteImage(self._wand, fp)
-        elif isinstance(fp, file):
+        elif isinstance(fp, FileIO):
             wand_wrapper.MagickWriteImageFile(self._wand, fp)
         elif hasattr(fp, "write"):
             data = wand_wrapper.MagickWriteImageBlob(self._wand)
