@@ -37,6 +37,7 @@ def _wand_errcheck(rc, func, args):
     else:
         return rc
 
+
 # ENUM declarations:
 FilterTypes = {
     'UndefinedFilter': 0,
@@ -65,11 +66,13 @@ class WandException(Exception):
 class MagickWand(ctypes.Structure):
     pass
 
+
 WAND_P = ctypes.POINTER(MagickWand)
 
 
 class FILE(ctypes.Structure):
     pass
+
 
 ExceptionType = ctypes.c_int  # TODO: Expand enum choices
 MagickBooleanType = ctypes.c_uint
@@ -104,8 +107,8 @@ MagickStripImage.argtypes = [WAND_P]
 MagickStripImage.restype = MagickBooleanType
 MagickStripImage.errcheck = _wand_errcheck
 
-# The file I/O functions are complicated by the need to convert Python-like
-# files into something compatible with ctypes or CFFI:
+# The file I/O functions are complicated by the need to convert Python file-like
+# objects into something compatible with ctypes or CFFI:
 _MagickReadImageBlob = _wandlib.MagickReadImageBlob
 _MagickReadImageBlob.restype = MagickBooleanType
 _MagickReadImageBlob.argtypes = [WAND_P, ctypes.c_void_p, ctypes.c_size_t]
@@ -116,6 +119,7 @@ def MagickReadImageBlob(wand, blob):
     b = ctypes.create_string_buffer(blob)
     return _MagickReadImageBlob(wand, b, ctypes.sizeof(b))
 
+
 _MagickReadImageFile = _wandlib.MagickReadImageFile
 _MagickReadImageFile.restype = MagickBooleanType
 _MagickReadImageFile.argtypes = [WAND_P, FILE_P]
@@ -125,6 +129,7 @@ _MagickReadImageFile.errcheck = _wand_errcheck
 def MagickReadImageFile(wand, fp):
     c_file = ctypes.pythonapi.PyFile_AsFile(fp)
     return _MagickReadImageFile(wand, c_file)
+
 
 MagickWriteImage = _wandlib.MagickWriteImage
 MagickWriteImage.restype = MagickBooleanType
@@ -142,6 +147,7 @@ def MagickWriteImageBlob(wand):
     data = _MagickWriteImageBlob(wand, ctypes.pointer(length))
     return data[0:length.value]
 
+
 _MagickWriteImageFile = _wandlib.MagickWriteImageFile
 _MagickWriteImageFile.restype = MagickBooleanType
 _MagickWriteImageFile.argtypes = [WAND_P, FILE_P]
@@ -151,6 +157,7 @@ _MagickWriteImageFile.errcheck = _wand_errcheck
 def MagickWriteImageFile(wand, fp):
     c_file = ctypes.pythonapi.PyFile_AsFile(fp)
     _MagickWriteImageFile(wand, c_file)
+
 
 MagickReadImage = _wandlib.MagickReadImage
 MagickReadImage.restype = MagickBooleanType
